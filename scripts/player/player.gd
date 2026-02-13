@@ -8,18 +8,15 @@ const SPEED: float = 200.0
 var target_position: Vector2 = Vector2.ZERO
 var is_moving: bool = false
 
-@onready var sprite: Sprite2D = $Sprite2D
-
 func _ready() -> void:
 	target_position = global_position
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch and event.pressed:
-		target_position = get_global_mouse_position()
+		target_position = get_canvas_transform().affine_inverse() * Vector2(event.position)
 		is_moving = true
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		# Desktop fallback for testing
-		target_position = get_global_mouse_position()
+		target_position = get_canvas_transform().affine_inverse() * Vector2(event.position)
 		is_moving = true
 
 func _physics_process(_delta: float) -> void:
