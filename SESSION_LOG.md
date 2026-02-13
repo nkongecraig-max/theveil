@@ -48,6 +48,19 @@
 - Customer manager: 3 customers per day, auto-spawns with delays between
 - Full gameplay loop: customer arrives → walks to counter → player taps counter → puzzle opens → solve order → earn coins → next customer → day advances
 - All interactions tracked via Analytics
-**Next up:** Test the full loop in Godot, tune puzzle difficulty, add visual feedback
+- Fixed counter interaction (customer collision, tap zone sizing, proximity detection)
+- Fixed shelf interaction (centralized all input in shop.gd, Rect2 zone-based hit detection)
+- Wired save system -- auto-saves at day end
+- Added day summary screen between days (shows coins + level, Next Day button)
+- Added puzzle visual polish: fade-in/out, colored buttons, scale bounce, green/red flash feedback
+- Built recipe combining puzzle (second puzzle type):
+  - Customer requests a crafted product (Herbal Soap, Tea Set, etc.)
+  - Player picks correct ingredients from a pool (includes decoys)
+  - Order doesn't matter -- teaches pattern matching vs sorting's sequential ordering
+  - 6 recipes: Herbal Soap, Scented Candle, Bread Basket, Tea Set, Gift Bundle, Herb Tea
+- Expanded customer pool to 7 templates with both puzzle types
+- Economy balancing: customers/day scales (3→4→5), day bonus on rewards, HUD shows level
+- Synced backup to LaCie external drive
+**Next up:** Third puzzle type, playtesting, shop upgrades (spend coins on something)
 **Blockers:** None
-**Content generated:** First playable gameplay loop -- major milestone screenshot
+**Content generated:** Two puzzle types working, full economy loop, save/load functional
