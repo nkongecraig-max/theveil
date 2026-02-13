@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 ## Player - Touch-controlled character for the shop.
-## Tap anywhere to walk there. Simple, one-hand mobile play.
+## Movement is controlled by the shop script calling move_to().
 
 const SPEED: float = 200.0
 
@@ -11,13 +11,13 @@ var is_moving: bool = false
 func _ready() -> void:
 	target_position = global_position
 
-func _input(event: InputEvent) -> void:
-	if event is InputEventScreenTouch and event.pressed:
-		target_position = get_canvas_transform().affine_inverse() * Vector2(event.position)
-		is_moving = true
-	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		target_position = get_canvas_transform().affine_inverse() * Vector2(event.position)
-		is_moving = true
+func move_to(pos: Vector2) -> void:
+	target_position = pos
+	is_moving = true
+
+func stop_moving() -> void:
+	is_moving = false
+	velocity = Vector2.ZERO
 
 func _physics_process(_delta: float) -> void:
 	if not is_moving:

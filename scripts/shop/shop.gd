@@ -1,8 +1,7 @@
 extends Node2D
 
 ## Shop - The player's shop. The core space of The Veil.
-## Top-down 2D view. Player walks around, interacts with shelves,
-## serves customers, solves puzzles, and encounters diegetic ad surfaces.
+## ALL tap input is handled here. Taps either open interactions or move the player.
 
 @onready var player: CharacterBody2D = $Player
 @onready var camera: Camera2D = $Player/Camera2D
@@ -12,7 +11,7 @@ extends Node2D
 @onready var sorting_puzzle: Control = $UI/SortingPuzzle
 @onready var customer_manager: Node = $CustomerManager
 
-# Shelf data: which items are on which shelf
+# Shelf data
 var shelf_items: Dictionary = {
 	"shelf_left": ["bread", "herbs", "tea"],
 	"shelf_right": ["candle", "soap", "pottery"],
@@ -20,21 +19,19 @@ var shelf_items: Dictionary = {
 	"shelf_back_right": ["herbs", "soap"],
 }
 
-# Track which shelf the player is near
-var nearby_shelf: String = ""
-const SHELF_INTERACT_DISTANCE: float = 120.0
-
-# Shelf positions for distance check
-var shelf_positions: Dictionary = {
-	"shelf_left": Vector2(120, 300),
-	"shelf_right": Vector2(600, 300),
-	"shelf_back_left": Vector2(200, 140),
-	"shelf_back_right": Vector2(520, 140),
+# Shelf positions and sizes for tap detection
+var shelf_zones: Dictionary = {
+	"shelf_left": Rect2(40, 200, 160, 200),
+	"shelf_right": Rect2(520, 200, 160, 200),
+	"shelf_back_left": Rect2(130, 120, 140, 40),
+	"shelf_back_right": Rect2(450, 120, 140, 40),
 }
 
-# Counter tap zone
-const COUNTER_POS: Vector2 = Vector2(360, 930)
-const COUNTER_TAP_DISTANCE: float = 100.0
+# Counter zone for tap detection -- big generous area around the counter
+var counter_zone: Rect2 = Rect2(140, 850, 440, 180)
+
+# How close player needs to be to interact
+const INTERACT_DISTANCE: float = 300.0
 
 func _ready() -> void:
 	_setup_collisions()
@@ -50,25 +47,13 @@ func _ready() -> void:
 	customer_manager.day_complete.connect(_on_day_complete)
 	Analytics.track_event("scene_entered", {"scene": "shop"})
 	print("[Shop] Welcome to your shop. Day %d." % GameManager.current_day)
-
-	# Start the day — customers begin arriving
 	customer_manager.start_day()
 
-func _process(_delta: float) -> void:
-	_update_nearby_shelf()
-
-func _update_nearby_shelf() -> void:
-	nearby_shelf = ""
-	var closest_dist = SHELF_INTERACT_DISTANCE
-	for shelf_id in shelf_positions:
-		var dist = player.global_position.distance_to(shelf_positions[shelf_id])
-		if dist < closest_dist:
-			closest_dist = dist
-			nearby_shelf = shelf_id
-
 func _input(event: InputEvent) -> void:
+	# Don't process taps if a panel is open
 	if inventory_panel.is_open or sorting_puzzle.visible:
 		return
+
 	var tap_pos: Vector2 = Vector2.ZERO
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		tap_pos = get_canvas_transform().affine_inverse() * Vector2(event.position)
@@ -77,32 +62,39 @@ func _input(event: InputEvent) -> void:
 	else:
 		return
 
-	# Check counter tap first (to serve customer)
-	if _check_counter_tap(tap_pos):
+	# Priority 1: Did they tap the counter? (and is player close enough?)
+	if counter_zone.has_point(tap_pos):
+		var dist = player.global_position.distance_to(counter_zone.get_center())
+		if dist < INTERACT_DISTANCE:
+			if _try_serve_customer():
+				return
+		# Not close enough — walk toward counter instead
+		player.move_to(Vector2(360, 980))
 		return
-	# Then check shelf tap
-	_check_shelf_tap(tap_pos)
 
-func _check_counter_tap(tap_pos: Vector2) -> bool:
-	var dist_to_counter = tap_pos.distance_to(COUNTER_POS)
-	var player_to_counter = player.global_position.distance_to(COUNTER_POS)
-	if dist_to_counter < COUNTER_TAP_DISTANCE and player_to_counter < 150.0:
-		var customer = customer_manager.get_current_customer()
-		if customer != null and customer.state == "waiting":
-			# Start the sorting puzzle with the customer's order
-			var items: Array[String] = []
-			items.assign(customer.requested_items)
-			sorting_puzzle.start_puzzle("order_%d" % GameManager.current_day, items)
-			return true
+	# Priority 2: Did they tap a shelf? (and is player close enough?)
+	for shelf_id in shelf_zones:
+		var zone: Rect2 = shelf_zones[shelf_id]
+		if zone.has_point(tap_pos):
+			var dist = player.global_position.distance_to(zone.get_center())
+			if dist < INTERACT_DISTANCE:
+				inventory_panel.open_panel(shelf_id, shelf_items[shelf_id])
+				return
+			# Not close enough — walk toward shelf
+			player.move_to(zone.get_center() + Vector2(0, 120))
+			return
+
+	# Priority 3: Nothing special tapped — just walk there
+	player.move_to(tap_pos)
+
+func _try_serve_customer() -> bool:
+	var customer = customer_manager.get_current_customer()
+	if customer != null and customer.state == "waiting":
+		var items: Array[String] = []
+		items.assign(customer.requested_items)
+		sorting_puzzle.start_puzzle("order_%d" % GameManager.current_day, items)
+		return true
 	return false
-
-func _check_shelf_tap(tap_pos: Vector2) -> void:
-	if nearby_shelf == "":
-		return
-	var shelf_pos = shelf_positions[nearby_shelf]
-	var dist_to_shelf = tap_pos.distance_to(shelf_pos)
-	if dist_to_shelf < SHELF_INTERACT_DISTANCE:
-		inventory_panel.open_panel(nearby_shelf, shelf_items[nearby_shelf])
 
 func _on_item_selected(item_id: String) -> void:
 	print("[Shop] Browsing item: %s" % item_id)
@@ -123,7 +115,6 @@ func _on_order_filled(reward: int) -> void:
 func _on_day_complete() -> void:
 	print("[Shop] All customers served! Day %d complete." % GameManager.current_day)
 	GameManager.advance_day()
-	# Restart with new customers after a pause
 	var timer = get_tree().create_timer(3.0)
 	timer.timeout.connect(func(): customer_manager.start_day())
 

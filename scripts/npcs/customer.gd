@@ -20,7 +20,7 @@ var requested_items: Array[String] = []
 var reward_coins: int = 10
 var state: String = "entering"  # entering, waiting, leaving, done
 var target_pos: Vector2 = Vector2.ZERO
-var counter_pos: Vector2 = Vector2(360, 830)
+var counter_pos: Vector2 = Vector2(360, 1000)
 var exit_pos: Vector2 = Vector2(360, 1350)
 var entry_pos: Vector2 = Vector2(360, 1350)
 
@@ -45,6 +45,7 @@ func _physics_process(_delta: float) -> void:
 			state = "waiting"
 			_show_request()
 			arrived_at_counter.emit(self)
+			print("[Customer] %s arrived at counter. State: waiting" % customer_name)
 	elif state == "leaving":
 		_move_toward(exit_pos)
 		if global_position.distance_to(exit_pos) < 10.0:

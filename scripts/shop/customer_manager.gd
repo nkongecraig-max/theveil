@@ -72,6 +72,9 @@ func _spawn_next_customer() -> void:
 	var shape = RectangleShape2D.new()
 	shape.size = Vector2(32, 32)
 	customer.get_node("CollisionShape2D").shape = shape
+	# Customers don't collide with walls -- they walk freely to the counter
+	customer.collision_layer = 0
+	customer.collision_mask = 0
 
 	customer.arrived_at_counter.connect(_on_customer_arrived)
 	customer.order_completed.connect(_on_order_completed)
