@@ -10,7 +10,7 @@ signal day_complete
 var customer_scene: PackedScene = preload("res://scenes/npcs/customer.tscn")
 var current_customer: CharacterBody2D = null
 var customers_served_today: int = 0
-var customers_per_day: int = 3
+var base_customers_per_day: int = 3
 var shop_node: Node2D = null
 
 # Customer templates for early game
@@ -86,8 +86,18 @@ func start_day() -> void:
 	customers_served_today = 0
 	_spawn_next_customer()
 
+func _get_customers_for_today() -> int:
+	# Scale: Day 1-3 = 3 customers, Day 4-6 = 4, Day 7+ = 5
+	var day = GameManager.current_day
+	if day <= 3:
+		return base_customers_per_day
+	elif day <= 6:
+		return base_customers_per_day + 1
+	else:
+		return base_customers_per_day + 2
+
 func _spawn_next_customer() -> void:
-	if customers_served_today >= customers_per_day:
+	if customers_served_today >= _get_customers_for_today():
 		day_complete.emit()
 		return
 	if current_customer != null:
@@ -120,8 +130,11 @@ func _on_customer_arrived(_customer: CharacterBody2D) -> void:
 	pass
 
 func _on_order_completed(_customer: CharacterBody2D, reward: int) -> void:
-	GameManager.add_coins(reward)
-	order_filled.emit(reward)
+	# Day bonus: +1 coin per day past Day 1
+	var day_bonus = maxi(0, GameManager.current_day - 1)
+	var total_reward = reward + day_bonus
+	GameManager.add_coins(total_reward)
+	order_filled.emit(total_reward)
 
 func _on_customer_left(_customer: CharacterBody2D) -> void:
 	current_customer = null

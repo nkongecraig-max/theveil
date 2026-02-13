@@ -131,8 +131,9 @@ func _show_day_summary() -> void:
 	# Show a brief day-end summary before next day starts
 	var summary = $UI/DaySummary
 	summary.visible = true
-	summary.get_node("DayText").text = "Day %d Complete" % (GameManager.current_day - 1)
-	summary.get_node("CoinsText").text = "%d coins" % GameManager.player_coins
+	var prev_day = GameManager.current_day - 1
+	summary.get_node("DayText").text = "Day %d Complete" % prev_day
+	summary.get_node("CoinsText").text = "%d coins  |  Level %d" % [GameManager.player_coins, GameManager.player_level]
 	summary.get_node("NextBtn").pressed.connect(func():
 		summary.visible = false
 		customer_manager.start_day()
@@ -181,5 +182,5 @@ func _on_day_advanced(_day: int) -> void:
 	_update_hud()
 
 func _update_hud() -> void:
-	day_label.text = "Day %d" % GameManager.current_day
+	day_label.text = "Day %d  Lv %d" % [GameManager.current_day, GameManager.player_level]
 	coins_label.text = "%d coins" % GameManager.player_coins
