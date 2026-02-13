@@ -33,3 +33,8 @@
 ### D007: Publishing entity -- Ni Biashara LLC
 **Decision:** Publish under Ni Biashara LLC
 **Why:** Existing LLC in good standing with active bank account. Clean separation of business and personal finances. Required for bank loan approach.
+
+### D008: Art direction -- Flat Minimal
+**Decision:** Use flat minimal art style. Clean geometric shapes, muted earth/lavender palette, bold outlines, no gradients or complex textures.
+**Why:** Best fit for diegetic advertising strategy. Clean rectangular surfaces (shelves, walls, counters, signs) serve as natural ad containers -- brand logos and product placements integrate seamlessly without clashing. Muted base palette (warm grays, soft lavender, dusty rose) makes ad colors pop when they appear, drawing the eye naturally. Flat vector style is fast to produce, scales perfectly across devices, and loads instantly on mobile. The minimalist aesthetic also supports the narrative arc: Act 1 feels calm and understated, making Act 2's visual "cracks" dramatically impactful.
+**Alternative rejected:** Paper Town (charming but textured surfaces compete with ad content for visual attention). Pixel Quiet (nostalgic but pixel art constrains ad resolution and brand logo fidelity).
