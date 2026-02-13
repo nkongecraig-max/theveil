@@ -1,0 +1,21 @@
+# Godot
+.godot/
+*.import
+export_presets.cfg
+
+# Exports
+exports/android/*.apk
+exports/android/*.aab
+exports/ios/*.ipa
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Raw recordings (too large for git)
+content/clips/raw/
+
+# IDE
+.vscode/
+*.swp
+*~
