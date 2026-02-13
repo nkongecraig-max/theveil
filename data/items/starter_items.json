@@ -1,0 +1,52 @@
+{
+	"items": [
+		{
+			"id": "bread",
+			"name": "Fresh Bread",
+			"price": 5,
+			"category": "food",
+			"description": "Warm and crusty. Everyone needs bread.",
+			"color": [0.85, 0.72, 0.45]
+		},
+		{
+			"id": "candle",
+			"name": "Beeswax Candle",
+			"price": 8,
+			"category": "home",
+			"description": "Soft light for quiet evenings.",
+			"color": [0.95, 0.88, 0.55]
+		},
+		{
+			"id": "herbs",
+			"name": "Dried Herbs",
+			"price": 6,
+			"category": "food",
+			"description": "A fragrant bundle of rosemary and thyme.",
+			"color": [0.45, 0.7, 0.4]
+		},
+		{
+			"id": "soap",
+			"name": "Lavender Soap",
+			"price": 4,
+			"category": "home",
+			"description": "Handmade. Smells like the hillside.",
+			"color": [0.72, 0.62, 0.82]
+		},
+		{
+			"id": "tea",
+			"name": "Mountain Tea",
+			"price": 7,
+			"category": "food",
+			"description": "Picked at dawn. Brewed with patience.",
+			"color": [0.6, 0.75, 0.5]
+		},
+		{
+			"id": "pottery",
+			"name": "Clay Bowl",
+			"price": 10,
+			"category": "home",
+			"description": "Simple and sturdy. Holds anything.",
+			"color": [0.75, 0.55, 0.4]
+		}
+	]
+}
