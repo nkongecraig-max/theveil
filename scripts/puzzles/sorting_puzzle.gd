@@ -1,7 +1,7 @@
 extends Control
 
 ## SortingPuzzle - The first puzzle type in The Veil.
-## Customer requests items in a specific order. Player drags items
+## Customer requests items in a specific order. Player taps items
 ## into the correct slots. Secretly teaches sorting/pattern recognition.
 
 signal puzzle_completed(puzzle_id: String, time_taken: float, moves: int)
@@ -23,7 +23,6 @@ var move_count: int = 0
 var start_time: float = 0.0
 var is_solved: bool = false
 
-# Item display data
 var item_colors: Dictionary = {
 	"bread": Color(0.85, 0.72, 0.45),
 	"candle": Color(0.95, 0.88, 0.55),
@@ -55,18 +54,23 @@ func start_puzzle(id: String, requested_items: Array[String]) -> void:
 	start_time = Time.get_unix_time_from_system()
 	result_label.text = ""
 
-	# Shuffle items for the puzzle
 	available_items = requested_items.duplicate()
 	available_items.shuffle()
 	current_order = []
 
 	title_label.text = "Customer Order"
-	instruction_label.text = "Tap items in the right order: %s" % _format_order(target_order)
+	instruction_label.text = "Tap items in order: %s" % _format_order(target_order)
 
 	_build_slots()
 	_build_items()
 
 	visible = true
+
+	# Slide-in animation
+	$PanelBG.modulate.a = 0.0
+	var tween = create_tween()
+	tween.tween_property($PanelBG, "modulate:a", 1.0, 0.3)
+
 	Analytics.track_event("puzzle_started", {"puzzle_id": id, "type": "sorting"})
 
 func _format_order(order: Array[String]) -> String:
@@ -80,13 +84,28 @@ func _build_slots() -> void:
 		child.queue_free()
 	for i in target_order.size():
 		var slot = ColorRect.new()
-		slot.custom_minimum_size = Vector2(80, 80)
-		slot.color = Color(0.8, 0.78, 0.75, 1)
+		slot.custom_minimum_size = Vector2(90, 90)
+		slot.color = Color(0.82, 0.8, 0.77, 1)
+		# Slot border
+		var border = ColorRect.new()
+		border.custom_minimum_size = Vector2(90, 90)
+		border.color = Color(0.6, 0.58, 0.55)
+		border.anchors_preset = Control.PRESET_FULL_RECT
+		border.size = Vector2(90, 90)
+		slot.add_child(border)
+		# Inner
+		var inner = ColorRect.new()
+		inner.position = Vector2(3, 3)
+		inner.size = Vector2(84, 84)
+		inner.color = Color(0.88, 0.86, 0.83)
+		slot.add_child(inner)
+		# Number label
 		var label = Label.new()
 		label.text = str(i + 1)
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		label.anchors_preset = Control.PRESET_FULL_RECT
+		label.modulate.a = 0.4
 		slot.add_child(label)
 		slots_container.add_child(slot)
 
@@ -97,21 +116,33 @@ func _build_items() -> void:
 		if item_id in current_order:
 			continue
 		var btn = Button.new()
-		btn.custom_minimum_size = Vector2(80, 80)
+		btn.custom_minimum_size = Vector2(100, 70)
 		btn.text = item_names.get(item_id, item_id)
 		var color = item_colors.get(item_id, Color.WHITE)
 		var stylebox = StyleBoxFlat.new()
 		stylebox.bg_color = color
-		stylebox.corner_radius_top_left = 8
-		stylebox.corner_radius_top_right = 8
-		stylebox.corner_radius_bottom_left = 8
-		stylebox.corner_radius_bottom_right = 8
+		stylebox.corner_radius_top_left = 10
+		stylebox.corner_radius_top_right = 10
+		stylebox.corner_radius_bottom_left = 10
+		stylebox.corner_radius_bottom_right = 10
+		stylebox.content_margin_left = 8.0
+		stylebox.content_margin_right = 8.0
+		stylebox.content_margin_top = 8.0
+		stylebox.content_margin_bottom = 8.0
+		# Pressed state slightly darker
+		var pressed_style = stylebox.duplicate()
+		pressed_style.bg_color = color.darkened(0.2)
 		btn.add_theme_stylebox_override("normal", stylebox)
 		btn.add_theme_stylebox_override("hover", stylebox)
-		btn.add_theme_stylebox_override("pressed", stylebox)
+		btn.add_theme_stylebox_override("pressed", pressed_style)
 		var captured_id = item_id
 		btn.pressed.connect(func(): _on_item_picked(captured_id))
 		items_container.add_child(btn)
+		# Pop-in animation for each item
+		btn.scale = Vector2(0.5, 0.5)
+		btn.pivot_offset = btn.custom_minimum_size / 2.0
+		var tween = create_tween()
+		tween.tween_property(btn, "scale", Vector2(1.0, 1.0), 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 
 func _on_item_picked(item_id: String) -> void:
 	if is_solved:
@@ -119,17 +150,25 @@ func _on_item_picked(item_id: String) -> void:
 	move_count += 1
 	current_order.append(item_id)
 
-	# Update the slot visual
+	# Update the slot visual with animation
 	var slot_index = current_order.size() - 1
 	if slot_index < slots_container.get_child_count():
 		var slot = slots_container.get_child(slot_index)
-		slot.color = item_colors.get(item_id, Color.WHITE)
-		slot.get_child(0).text = item_names.get(item_id, item_id)
+		var color = item_colors.get(item_id, Color.WHITE)
+		# Flash the slot
+		slot.color = color
+		# Update label
+		slot.get_child(2).text = item_names.get(item_id, item_id)
+		slot.get_child(2).modulate.a = 1.0
+		# Update inner color
+		slot.get_child(1).color = color
+		# Scale bounce
+		var tween = create_tween()
+		tween.tween_property(slot, "scale", Vector2(1.15, 1.15), 0.1)
+		tween.tween_property(slot, "scale", Vector2(1.0, 1.0), 0.1)
 
-	# Rebuild available items (remove picked one)
 	_build_items()
 
-	# Check if puzzle is complete
 	if current_order.size() == target_order.size():
 		_check_solution()
 
@@ -137,27 +176,42 @@ func _check_solution() -> void:
 	var time_taken = Time.get_unix_time_from_system() - start_time
 	if current_order == target_order:
 		is_solved = true
-		result_label.text = "Perfect! Order filled correctly."
+		result_label.text = "Order filled!"
+		result_label.modulate = Color(0.2, 0.7, 0.3)
+		# Flash all slots green
+		for slot in slots_container.get_children():
+			var tween = create_tween()
+			tween.tween_property(slot, "modulate", Color(0.6, 1.0, 0.6), 0.3)
+			tween.tween_property(slot, "modulate", Color.WHITE, 0.3)
 		Analytics.track_event("puzzle_solved", {
 			"puzzle_id": puzzle_id,
 			"time": time_taken,
 			"moves": move_count,
 		})
-		# Delay then emit signal
 		var timer = get_tree().create_timer(1.5)
 		timer.timeout.connect(func(): puzzle_completed.emit(puzzle_id, time_taken, move_count))
 	else:
-		result_label.text = "Wrong order. Try again!"
+		result_label.text = "Wrong order!"
+		result_label.modulate = Color(0.9, 0.3, 0.3)
+		# Flash slots red
+		for slot in slots_container.get_children():
+			var tween = create_tween()
+			tween.tween_property(slot, "modulate", Color(1.0, 0.5, 0.5), 0.2)
+			tween.tween_property(slot, "modulate", Color.WHITE, 0.2)
 		Analytics.track_event("puzzle_failed", {"puzzle_id": puzzle_id, "moves": move_count})
-		# Reset after a moment
-		var timer = get_tree().create_timer(1.0)
+		var timer = get_tree().create_timer(1.2)
 		timer.timeout.connect(func():
 			current_order = []
 			result_label.text = ""
+			result_label.modulate = Color.WHITE
 			_build_slots()
 			_build_items()
 		)
 
 func _on_close() -> void:
-	visible = false
-	puzzle_closed.emit()
+	var tween = create_tween()
+	tween.tween_property($PanelBG, "modulate:a", 0.0, 0.2)
+	tween.tween_callback(func():
+		visible = false
+		puzzle_closed.emit()
+	)

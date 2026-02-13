@@ -31,3 +31,23 @@
 **Next up:** Open in Godot 4.6, test shop walkability, add shelf interaction (tap shelf to see items)
 **Blockers:** None
 **Content generated:** Project structure + shop scene screenshot opportunities
+
+---
+
+## Session 2 | 2026-02-13 | In Progress (Sprint)
+**Focus:** Testing, shelf interaction, items, customers, first puzzle
+**Done:**
+- Fixed player movement (mouse_filter blocking clicks, switched to _input)
+- Added text labels to all shop elements (SHELF, COUNTER, AD SPACE, EXIT, YOU)
+- Tested in Godot 4.6 -- shop runs, player moves, layout readable
+- Built shelf interaction system (tap shelf when nearby to open inventory panel)
+- Created 6 starter items with JSON data (bread, candle, herbs, soap, tea, pottery)
+- Built inventory panel with slide-up animation and colored item cards
+- Built sorting puzzle -- customers request items in order, player taps items in sequence
+- Created NPC customer system with 5 customer templates (Mara, Old Jin, Kess, Davi, Renna)
+- Customer manager: 3 customers per day, auto-spawns with delays between
+- Full gameplay loop: customer arrives → walks to counter → player taps counter → puzzle opens → solve order → earn coins → next customer → day advances
+- All interactions tracked via Analytics
+**Next up:** Test the full loop in Godot, tune puzzle difficulty, add visual feedback
+**Blockers:** None
+**Content generated:** First playable gameplay loop -- major milestone screenshot

@@ -115,8 +115,19 @@ func _on_order_filled(reward: int) -> void:
 func _on_day_complete() -> void:
 	print("[Shop] All customers served! Day %d complete." % GameManager.current_day)
 	GameManager.advance_day()
-	var timer = get_tree().create_timer(3.0)
-	timer.timeout.connect(func(): customer_manager.start_day())
+	SaveManager.save_game()
+	_show_day_summary()
+
+func _show_day_summary() -> void:
+	# Show a brief day-end summary before next day starts
+	var summary = $UI/DaySummary
+	summary.visible = true
+	summary.get_node("DayText").text = "Day %d Complete" % (GameManager.current_day - 1)
+	summary.get_node("CoinsText").text = "%d coins" % GameManager.player_coins
+	summary.get_node("NextBtn").pressed.connect(func():
+		summary.visible = false
+		customer_manager.start_day()
+	, CONNECT_ONE_SHOT)
 
 func _setup_collisions() -> void:
 	var player_shape = RectangleShape2D.new()

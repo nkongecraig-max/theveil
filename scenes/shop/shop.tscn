@@ -314,6 +314,57 @@ text = "Tap anywhere to walk"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="DaySummary" type="Control" parent="UI"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Dimmer" type="ColorRect" parent="UI/DaySummary"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.08, 0.07, 0.1, 0.7)
+
+[node name="Panel" type="ColorRect" parent="UI/DaySummary"]
+layout_mode = 0
+offset_left = 110.0
+offset_top = 400.0
+offset_right = 610.0
+offset_bottom = 700.0
+color = Color(0.95, 0.93, 0.9, 1)
+
+[node name="DayText" type="Label" parent="UI/DaySummary"]
+layout_mode = 0
+offset_left = 110.0
+offset_top = 430.0
+offset_right = 610.0
+offset_bottom = 490.0
+text = "Day 1 Complete"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CoinsText" type="Label" parent="UI/DaySummary"]
+layout_mode = 0
+offset_left = 110.0
+offset_top = 510.0
+offset_right = 610.0
+offset_bottom = 560.0
+text = "0 coins"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NextBtn" type="Button" parent="UI/DaySummary"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = 600.0
+offset_right = 470.0
+offset_bottom = 660.0
+text = "Next Day"
+
 [node name="InventoryPanel" parent="UI" instance=ExtResource("3")]
 
 [node name="SortingPuzzle" parent="UI" instance=ExtResource("4")]
