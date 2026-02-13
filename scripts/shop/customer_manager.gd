@@ -14,7 +14,7 @@ var base_customers_per_day: int = 3
 var shop_node: Node2D = null
 
 # Customer templates for early game
-# puzzle_type: "sorting" = tap items in order, "recipe" = pick ingredients to craft
+# puzzle_type: "sorting" = tap items in order, "recipe" = pick ingredients to craft, "memory" = remember items
 var customer_pool: Array[Dictionary] = [
 	{
 		"name": "Mara",
@@ -74,6 +74,20 @@ var customer_pool: Array[Dictionary] = [
 		"puzzle_type": "recipe",
 		"recipe_id": "gift_bundle",
 		"recipe_name": "Gift Bundle",
+	},
+	{
+		"name": "Suki",
+		"color": Color(0.75, 0.82, 0.6),
+		"items": ["bread", "tea"],
+		"reward": 12,
+		"puzzle_type": "memory",
+	},
+	{
+		"name": "Brick",
+		"color": Color(0.65, 0.55, 0.5),
+		"items": ["pottery", "soap", "candle"],
+		"reward": 22,
+		"puzzle_type": "memory",
 	},
 ]
 

@@ -65,6 +65,8 @@ func _move_toward(target: Vector2) -> void:
 func _show_request() -> void:
 	if puzzle_type == "recipe" and recipe_name != "":
 		speech_label.text = "Can you make: %s?" % recipe_name
+	elif puzzle_type == "memory":
+		speech_label.text = "Do you remember my order?"
 	else:
 		var item_names = []
 		for item_id in requested_items:
