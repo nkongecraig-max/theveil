@@ -39,6 +39,10 @@ touch={
 "events": []
 }
 
+[gui]
+
+theme/default_font_size=28
+
 [rendering]
 
 renderer/rendering_method="mobile"

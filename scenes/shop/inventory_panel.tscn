@@ -32,24 +32,26 @@ color = Color(0.95, 0.93, 0.9, 1)
 [node name="TitleLabel" type="Label" parent="PanelBG"]
 layout_mode = 0
 offset_left = 20.0
-offset_top = 12.0
+offset_top = 10.0
 offset_right = 400.0
-offset_bottom = 40.0
+offset_bottom = 50.0
+theme_override_font_sizes/font_size = 32
 text = "SHELF"
 horizontal_alignment = 0
 
 [node name="CloseBtn" type="Button" parent="PanelBG"]
 layout_mode = 0
-offset_left = 580.0
-offset_top = 8.0
+offset_left = 560.0
+offset_top = 6.0
 offset_right = 670.0
-offset_bottom = 44.0
+offset_bottom = 54.0
+theme_override_font_sizes/font_size = 26
 text = "Close"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="PanelBG"]
 layout_mode = 0
 offset_left = 10.0
-offset_top = 52.0
+offset_top = 60.0
 offset_right = 690.0
 offset_bottom = 600.0
 

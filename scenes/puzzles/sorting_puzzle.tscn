@@ -32,51 +32,55 @@ color = Color(0.95, 0.93, 0.9, 1)
 [node name="TitleLabel" type="Label" parent="PanelBG"]
 layout_mode = 0
 offset_left = 20.0
-offset_top = 16.0
+offset_top = 12.0
 offset_right = 500.0
-offset_bottom = 44.0
+offset_bottom = 52.0
+theme_override_font_sizes/font_size = 34
 text = "Customer Order"
 
 [node name="InstructionLabel" type="Label" parent="PanelBG"]
 layout_mode = 0
 offset_left = 20.0
-offset_top = 52.0
+offset_top = 60.0
 offset_right = 660.0
-offset_bottom = 100.0
+offset_bottom = 120.0
+theme_override_font_sizes/font_size = 26
 text = "Tap items in the right order"
 autowrap_mode = 2
 
 [node name="SlotsContainer" type="HBoxContainer" parent="PanelBG"]
 layout_mode = 0
 offset_left = 20.0
-offset_top = 120.0
+offset_top = 130.0
 offset_right = 660.0
-offset_bottom = 220.0
+offset_bottom = 240.0
 theme_override_constants/separation = 12
 alignment = 1
 
 [node name="ItemsContainer" type="HBoxContainer" parent="PanelBG"]
 layout_mode = 0
 offset_left = 20.0
-offset_top = 260.0
+offset_top = 270.0
 offset_right = 660.0
-offset_bottom = 360.0
+offset_bottom = 380.0
 theme_override_constants/separation = 12
 alignment = 1
 
 [node name="ResultLabel" type="Label" parent="PanelBG"]
 layout_mode = 0
 offset_left = 20.0
-offset_top = 400.0
+offset_top = 410.0
 offset_right = 660.0
-offset_bottom = 440.0
+offset_bottom = 460.0
+theme_override_font_sizes/font_size = 32
 text = ""
 horizontal_alignment = 1
 
 [node name="CloseBtn" type="Button" parent="PanelBG"]
 layout_mode = 0
-offset_left = 560.0
-offset_top = 12.0
+offset_left = 540.0
+offset_top = 8.0
 offset_right = 660.0
-offset_bottom = 48.0
+offset_bottom = 56.0
+theme_override_font_sizes/font_size = 26
 text = "Close"

@@ -84,19 +84,19 @@ func _build_slots() -> void:
 		child.queue_free()
 	for i in target_order.size():
 		var slot = ColorRect.new()
-		slot.custom_minimum_size = Vector2(90, 90)
+		slot.custom_minimum_size = Vector2(100, 100)
 		slot.color = Color(0.82, 0.8, 0.77, 1)
 		# Slot border
 		var border = ColorRect.new()
-		border.custom_minimum_size = Vector2(90, 90)
+		border.custom_minimum_size = Vector2(100, 100)
 		border.color = Color(0.6, 0.58, 0.55)
 		border.anchors_preset = Control.PRESET_FULL_RECT
-		border.size = Vector2(90, 90)
+		border.size = Vector2(100, 100)
 		slot.add_child(border)
 		# Inner
 		var inner = ColorRect.new()
 		inner.position = Vector2(3, 3)
-		inner.size = Vector2(84, 84)
+		inner.size = Vector2(94, 94)
 		inner.color = Color(0.88, 0.86, 0.83)
 		slot.add_child(inner)
 		# Number label
@@ -116,7 +116,7 @@ func _build_items() -> void:
 		if item_id in current_order:
 			continue
 		var btn = Button.new()
-		btn.custom_minimum_size = Vector2(100, 70)
+		btn.custom_minimum_size = Vector2(120, 80)
 		btn.text = item_names.get(item_id, item_id)
 		var color = item_colors.get(item_id, Color.WHITE)
 		var stylebox = StyleBoxFlat.new()

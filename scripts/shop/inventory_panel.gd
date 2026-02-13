@@ -59,14 +59,14 @@ func close_panel() -> void:
 
 func _add_item_card(item: Dictionary) -> void:
 	var card = PanelContainer.new()
-	card.custom_minimum_size = Vector2(0, 80)
+	card.custom_minimum_size = Vector2(0, 100)
 
 	var hbox = HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 12)
 
 	# Color swatch
 	var swatch = ColorRect.new()
-	swatch.custom_minimum_size = Vector2(50, 50)
+	swatch.custom_minimum_size = Vector2(60, 60)
 	swatch.color = Color(item["color"][0], item["color"][1], item["color"][2])
 	hbox.add_child(swatch)
 
@@ -80,7 +80,7 @@ func _add_item_card(item: Dictionary) -> void:
 
 	var desc_label = Label.new()
 	desc_label.text = item["description"]
-	desc_label.add_theme_font_size_override("font_size", 12)
+	desc_label.add_theme_font_size_override("font_size", 22)
 	desc_label.modulate.a = 0.7
 	vbox.add_child(desc_label)
 
