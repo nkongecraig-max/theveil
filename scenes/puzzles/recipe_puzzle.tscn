@@ -1,0 +1,90 @@
+[gd_scene load_steps=2 format=3 uid="uid://recipe_puzzle"]
+
+[ext_resource type="Script" path="res://scripts/puzzles/recipe_puzzle.gd" id="1"]
+
+[node name="RecipePuzzle" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("1")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.4)
+
+[node name="PanelBG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 180.0
+offset_right = -20.0
+offset_bottom = -180.0
+color = Color(0.95, 0.93, 0.9, 1)
+
+[node name="TitleLabel" type="Label" parent="PanelBG"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 16.0
+offset_right = 500.0
+offset_bottom = 48.0
+text = "Craft: Product"
+
+[node name="RecipeLabel" type="Label" parent="PanelBG"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 52.0
+offset_right = 660.0
+offset_bottom = 100.0
+text = "Pick the right ingredients"
+autowrap_mode = 2
+
+[node name="ResultContainer" type="HBoxContainer" parent="PanelBG"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 110.0
+offset_right = 660.0
+offset_bottom = 210.0
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="IngredientsContainer" type="HBoxContainer" parent="PanelBG"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 240.0
+offset_right = 660.0
+offset_bottom = 340.0
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="CraftBtn" type="Button" parent="PanelBG"]
+layout_mode = 0
+offset_left = 230.0
+offset_top = 370.0
+offset_right = 450.0
+offset_bottom = 420.0
+text = "Craft It!"
+
+[node name="ResultLabel" type="Label" parent="PanelBG"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 440.0
+offset_right = 660.0
+offset_bottom = 480.0
+text = ""
+horizontal_alignment = 1
+
+[node name="CloseBtn" type="Button" parent="PanelBG"]
+layout_mode = 0
+offset_left = 560.0
+offset_top = 12.0
+offset_right = 660.0
+offset_bottom = 48.0
+text = "Close"

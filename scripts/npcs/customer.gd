@@ -18,6 +18,8 @@ var customer_name: String = "Customer"
 var customer_color: Color = Color(0.6, 0.7, 0.85)
 var requested_items: Array[String] = []
 var reward_coins: int = 10
+var puzzle_type: String = "sorting"
+var recipe_name: String = ""
 var state: String = "entering"  # entering, waiting, leaving, done
 var target_pos: Vector2 = Vector2.ZERO
 var counter_pos: Vector2 = Vector2(360, 1000)
@@ -29,6 +31,8 @@ func setup(data: Dictionary) -> void:
 	customer_color = data.get("color", Color(0.6, 0.7, 0.85))
 	requested_items.assign(data.get("items", ["bread"]))
 	reward_coins = data.get("reward", 10)
+	puzzle_type = data.get("puzzle_type", "sorting")
+	recipe_name = data.get("recipe_name", "")
 
 func _ready() -> void:
 	visual.color = customer_color
@@ -59,10 +63,13 @@ func _move_toward(target: Vector2) -> void:
 	move_and_slide()
 
 func _show_request() -> void:
-	var item_names = []
-	for item_id in requested_items:
-		item_names.append(item_id.capitalize())
-	speech_label.text = "I need: %s" % ", ".join(item_names)
+	if puzzle_type == "recipe" and recipe_name != "":
+		speech_label.text = "Can you make: %s?" % recipe_name
+	else:
+		var item_names = []
+		for item_id in requested_items:
+			item_names.append(item_id.capitalize())
+		speech_label.text = "I need: %s" % ", ".join(item_names)
 
 func complete_order() -> void:
 	speech_label.text = "Thanks!"

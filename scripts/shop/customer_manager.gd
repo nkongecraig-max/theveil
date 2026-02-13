@@ -14,38 +14,70 @@ var customers_per_day: int = 3
 var shop_node: Node2D = null
 
 # Customer templates for early game
+# puzzle_type: "sorting" = tap items in order, "recipe" = pick ingredients to craft
 var customer_pool: Array[Dictionary] = [
 	{
 		"name": "Mara",
 		"color": Color(0.65, 0.8, 0.7),
 		"items": ["bread", "herbs"],
 		"reward": 8,
+		"puzzle_type": "sorting",
 	},
 	{
 		"name": "Old Jin",
 		"color": Color(0.75, 0.65, 0.55),
 		"items": ["tea", "candle"],
 		"reward": 10,
+		"puzzle_type": "recipe",
+		"recipe_id": "herb_tea",
+		"recipe_name": "Herb Tea",
 	},
 	{
 		"name": "Kess",
 		"color": Color(0.8, 0.6, 0.7),
 		"items": ["soap", "herbs", "bread"],
 		"reward": 15,
+		"puzzle_type": "sorting",
 	},
 	{
 		"name": "Davi",
 		"color": Color(0.55, 0.65, 0.85),
 		"items": ["pottery", "candle", "tea"],
 		"reward": 18,
+		"puzzle_type": "recipe",
+		"recipe_id": "tea_set",
+		"recipe_name": "Tea Set",
 	},
 	{
 		"name": "Renna",
 		"color": Color(0.85, 0.75, 0.55),
 		"items": ["bread", "soap"],
 		"reward": 7,
+		"puzzle_type": "recipe",
+		"recipe_id": "herbal_soap",
+		"recipe_name": "Herbal Soap",
+	},
+	{
+		"name": "Fela",
+		"color": Color(0.7, 0.6, 0.8),
+		"items": ["candle", "herbs"],
+		"reward": 12,
+		"puzzle_type": "recipe",
+		"recipe_id": "scented_candle",
+		"recipe_name": "Scented Candle",
+	},
+	{
+		"name": "Tomas",
+		"color": Color(0.6, 0.75, 0.65),
+		"items": ["soap", "candle", "tea"],
+		"reward": 20,
+		"puzzle_type": "recipe",
+		"recipe_id": "gift_bundle",
+		"recipe_name": "Gift Bundle",
 	},
 ]
+
+var _current_data: Dictionary = {}
 
 func init(shop: Node2D) -> void:
 	shop_node = shop
@@ -63,6 +95,7 @@ func _spawn_next_customer() -> void:
 
 	# Pick a random customer
 	var data = customer_pool[randi() % customer_pool.size()]
+	_current_data = data
 	var customer = customer_scene.instantiate()
 	customer.setup(data)
 	shop_node.add_child(customer)
@@ -99,3 +132,9 @@ func _on_customer_left(_customer: CharacterBody2D) -> void:
 
 func get_current_customer() -> CharacterBody2D:
 	return current_customer
+
+func get_puzzle_type() -> String:
+	return _current_data.get("puzzle_type", "sorting")
+
+func get_recipe_id() -> String:
+	return _current_data.get("recipe_id", "")

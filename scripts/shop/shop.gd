@@ -9,6 +9,7 @@ extends Node2D
 @onready var coins_label: Label = $UI/CoinsLabel
 @onready var inventory_panel: Control = $UI/InventoryPanel
 @onready var sorting_puzzle: Control = $UI/SortingPuzzle
+@onready var recipe_puzzle: Control = $UI/RecipePuzzle
 @onready var customer_manager: Node = $CustomerManager
 
 # Shelf data
@@ -42,6 +43,8 @@ func _ready() -> void:
 	inventory_panel.item_selected.connect(_on_item_selected)
 	sorting_puzzle.puzzle_completed.connect(_on_puzzle_completed)
 	sorting_puzzle.puzzle_closed.connect(_on_puzzle_closed)
+	recipe_puzzle.puzzle_completed.connect(_on_puzzle_completed)
+	recipe_puzzle.puzzle_closed.connect(_on_puzzle_closed)
 	customer_manager.init(self)
 	customer_manager.order_filled.connect(_on_order_filled)
 	customer_manager.day_complete.connect(_on_day_complete)
@@ -51,7 +54,7 @@ func _ready() -> void:
 
 func _input(event: InputEvent) -> void:
 	# Don't process taps if a panel is open
-	if inventory_panel.is_open or sorting_puzzle.visible:
+	if inventory_panel.is_open or sorting_puzzle.visible or recipe_puzzle.visible:
 		return
 
 	var tap_pos: Vector2 = Vector2.ZERO
@@ -90,9 +93,14 @@ func _input(event: InputEvent) -> void:
 func _try_serve_customer() -> bool:
 	var customer = customer_manager.get_current_customer()
 	if customer != null and customer.state == "waiting":
-		var items: Array[String] = []
-		items.assign(customer.requested_items)
-		sorting_puzzle.start_puzzle("order_%d" % GameManager.current_day, items)
+		var puzzle_type = customer_manager.get_puzzle_type()
+		if puzzle_type == "recipe":
+			var recipe_id = customer_manager.get_recipe_id()
+			recipe_puzzle.start_puzzle("craft_%d" % GameManager.current_day, recipe_id)
+		else:
+			var items: Array[String] = []
+			items.assign(customer.requested_items)
+			sorting_puzzle.start_puzzle("order_%d" % GameManager.current_day, items)
 		return true
 	return false
 
@@ -105,6 +113,7 @@ func _on_puzzle_completed(_puzzle_id: String, _time_taken: float, _moves: int) -
 		customer.complete_order()
 		GameManager.complete_puzzle(_puzzle_id)
 	sorting_puzzle.visible = false
+	recipe_puzzle.visible = false
 
 func _on_puzzle_closed() -> void:
 	pass

@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://shop_scene"]
+[gd_scene load_steps=7 format=3 uid="uid://shop_scene"]
 
 [ext_resource type="Script" path="res://scripts/shop/shop.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="2"]
 [ext_resource type="PackedScene" uid="uid://inventory_panel" path="res://scenes/shop/inventory_panel.tscn" id="3"]
 [ext_resource type="PackedScene" uid="uid://sorting_puzzle" path="res://scenes/puzzles/sorting_puzzle.tscn" id="4"]
 [ext_resource type="Script" path="res://scripts/shop/customer_manager.gd" id="5"]
+[ext_resource type="PackedScene" uid="uid://recipe_puzzle" path="res://scenes/puzzles/recipe_puzzle.tscn" id="6"]
 
 [node name="Shop" type="Node2D"]
 script = ExtResource("1")
@@ -368,6 +369,8 @@ text = "Next Day"
 [node name="InventoryPanel" parent="UI" instance=ExtResource("3")]
 
 [node name="SortingPuzzle" parent="UI" instance=ExtResource("4")]
+
+[node name="RecipePuzzle" parent="UI" instance=ExtResource("6")]
 
 [node name="CustomerManager" type="Node" parent="."]
 script = ExtResource("5")
