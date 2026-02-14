@@ -11,9 +11,8 @@ extends Control
 
 func _ready() -> void:
 	# Add atmospheric background
-	var bg_node = Node2D.new()
+	var bg_node = Control.new()
 	bg_node.name = "MenuBG"
-	bg_node.z_index = -10
 	bg_node.set_script(load("res://scripts/visual/menu_background.gd"))
 	add_child(bg_node)
 	move_child(bg_node, 0)

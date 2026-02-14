@@ -103,7 +103,7 @@ static func draw_rounded_panel(canvas: CanvasItem, rect: Rect2, color: Color, ra
 static func draw_character(canvas: CanvasItem, pos: Vector2, body_color: Color, hair_color: Color, size: float = 1.0) -> void:
 	var s = size
 	# Shadow
-	canvas.draw_ellipse(Rect2(pos.x - 14 * s, pos.y + 14 * s, 28 * s, 8 * s), Color(0, 0, 0, 0.15))
+	draw_ellipse(canvas, Rect2(pos.x - 14 * s, pos.y + 14 * s, 28 * s, 8 * s), Color(0, 0, 0, 0.15))
 	# Body
 	canvas.draw_rect(Rect2(pos.x - 10 * s, pos.y - 4 * s, 20 * s, 22 * s), body_color)
 	# Shirt detail
@@ -127,14 +127,14 @@ static func draw_item_icon(canvas: CanvasItem, pos: Vector2, item_id: String, ic
 	match item_id:
 		"bread":
 			# Loaf shape
-			canvas.draw_ellipse(Rect2(pos.x - 10 * s, pos.y - 6 * s, 20 * s, 12 * s), Color(0.82, 0.68, 0.38))
+			draw_ellipse(canvas, Rect2(pos.x - 10 * s, pos.y - 6 * s, 20 * s, 12 * s), Color(0.82, 0.68, 0.38))
 			canvas.draw_arc(pos, 8 * s, deg_to_rad(200), deg_to_rad(340), 6, Color(0.65, 0.5, 0.25), 1.5 * s)
 		"herbs":
 			# Leaf cluster
 			for i in 3:
 				var angle = deg_to_rad(-30 + i * 30)
 				var leaf_pos = pos + Vector2(cos(angle), sin(angle)) * 4 * s
-				canvas.draw_ellipse(Rect2(leaf_pos.x - 4 * s, leaf_pos.y - 7 * s, 8 * s, 14 * s), Color(0.35, 0.6, 0.3))
+				draw_ellipse(canvas, Rect2(leaf_pos.x - 4 * s, leaf_pos.y - 7 * s, 8 * s, 14 * s), Color(0.35, 0.6, 0.3))
 			canvas.draw_line(pos + Vector2(0, 4 * s), pos + Vector2(0, 10 * s), Color(0.3, 0.45, 0.2), 2 * s)
 		"tea":
 			# Cup
@@ -146,8 +146,8 @@ static func draw_item_icon(canvas: CanvasItem, pos: Vector2, item_id: String, ic
 			# Candle body
 			canvas.draw_rect(Rect2(pos.x - 4 * s, pos.y - 2 * s, 8 * s, 14 * s), Color(0.92, 0.88, 0.75))
 			# Flame
-			canvas.draw_ellipse(Rect2(pos.x - 3 * s, pos.y - 10 * s, 6 * s, 10 * s), Color(0.95, 0.75, 0.2))
-			canvas.draw_ellipse(Rect2(pos.x - 1.5 * s, pos.y - 8 * s, 3 * s, 6 * s), Color(0.95, 0.9, 0.5))
+			draw_ellipse(canvas, Rect2(pos.x - 3 * s, pos.y - 10 * s, 6 * s, 10 * s), Color(0.95, 0.75, 0.2))
+			draw_ellipse(canvas, Rect2(pos.x - 1.5 * s, pos.y - 8 * s, 3 * s, 6 * s), Color(0.95, 0.9, 0.5))
 		"soap":
 			# Bar shape
 			canvas.draw_rect(Rect2(pos.x - 7 * s, pos.y - 5 * s, 14 * s, 10 * s), Color(0.72, 0.58, 0.78))
@@ -159,7 +159,7 @@ static func draw_item_icon(canvas: CanvasItem, pos: Vector2, item_id: String, ic
 			canvas.draw_arc(pos + Vector2(0, 2 * s), 8 * s, deg_to_rad(0), deg_to_rad(180), 10, Color(0.7, 0.5, 0.35), 3 * s)
 			canvas.draw_line(pos + Vector2(-8 * s, 2 * s), pos + Vector2(8 * s, 2 * s), Color(0.7, 0.5, 0.35), 2 * s)
 			# Rim
-			canvas.draw_ellipse(Rect2(pos.x - 9 * s, pos.y - 2 * s, 18 * s, 6 * s), Color(0.75, 0.55, 0.38))
+			draw_ellipse(canvas, Rect2(pos.x - 9 * s, pos.y - 2 * s, 18 * s, 6 * s), Color(0.75, 0.55, 0.38))
 		_:
 			# Generic box
 			canvas.draw_rect(Rect2(pos.x - 8 * s, pos.y - 8 * s, 16 * s, 16 * s), Color(0.7, 0.65, 0.6))
