@@ -113,5 +113,12 @@ func get_save_data() -> Dictionary:
 func load_save_data(data: Dictionary) -> void:
 	for key in data:
 		if key in self:
-			set(key, data[key])
+			# Handle typed string arrays from JSON (which loads as untyped Array)
+			if key in ["npcs_met", "items_collected", "shop_upgrades"]:
+				var typed_arr: Array[String] = []
+				for v in data[key]:
+					typed_arr.append(str(v))
+				set(key, typed_arr)
+			else:
+				set(key, data[key])
 	print("[GameManager] Save data loaded. Day %d, Level %d" % [current_day, player_level])

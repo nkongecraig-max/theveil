@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://shop_scene"]
+[gd_scene load_steps=9 format=3 uid="uid://shop_scene"]
 
 [ext_resource type="Script" path="res://scripts/shop/shop.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="2"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/shop/customer_manager.gd" id="5"]
 [ext_resource type="PackedScene" uid="uid://recipe_puzzle" path="res://scenes/puzzles/recipe_puzzle.tscn" id="6"]
 [ext_resource type="PackedScene" uid="uid://memory_puzzle" path="res://scenes/puzzles/memory_puzzle.tscn" id="7"]
+[ext_resource type="PackedScene" uid="uid://upgrade_shop" path="res://scenes/shop/upgrade_shop.tscn" id="8"]
 
 [node name="Shop" type="Node2D"]
 script = ExtResource("1")
@@ -381,6 +382,16 @@ text = "Next Day"
 [node name="RecipePuzzle" parent="UI" instance=ExtResource("6")]
 
 [node name="MemoryPuzzle" parent="UI" instance=ExtResource("7")]
+
+[node name="UpgradeShop" parent="UI" instance=ExtResource("8")]
+
+[node name="UpgradeBtn" type="Button" parent="UI"]
+offset_left = 20.0
+offset_top = 70.0
+offset_right = 200.0
+offset_bottom = 120.0
+theme_override_font_sizes/font_size = 24
+text = "Upgrades"
 
 [node name="CustomerManager" type="Node" parent="."]
 script = ExtResource("5")

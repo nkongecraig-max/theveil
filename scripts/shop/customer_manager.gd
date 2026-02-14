@@ -103,12 +103,17 @@ func start_day() -> void:
 func _get_customers_for_today() -> int:
 	# Scale: Day 1-3 = 3 customers, Day 4-6 = 4, Day 7+ = 5
 	var day = GameManager.current_day
+	var count: int
 	if day <= 3:
-		return base_customers_per_day
+		count = base_customers_per_day
 	elif day <= 6:
-		return base_customers_per_day + 1
+		count = base_customers_per_day + 1
 	else:
-		return base_customers_per_day + 2
+		count = base_customers_per_day + 2
+	# Shop Sign upgrade: +1 customer
+	var UpgradeShop = load("res://scripts/shop/upgrade_shop.gd")
+	count += UpgradeShop.get_extra_customers()
+	return count
 
 func _spawn_next_customer() -> void:
 	if customers_served_today >= _get_customers_for_today():
@@ -147,14 +152,22 @@ func _on_order_completed(_customer: CharacterBody2D, reward: int) -> void:
 	# Day bonus: +1 coin per day past Day 1
 	var day_bonus = maxi(0, GameManager.current_day - 1)
 	var total_reward = reward + day_bonus
+	# Upgrade bonuses
+	var UpgradeShop = load("res://scripts/shop/upgrade_shop.gd")
+	total_reward += UpgradeShop.get_tip_bonus()
+	if _current_data.get("puzzle_type", "") == "recipe":
+		total_reward += UpgradeShop.get_recipe_bonus()
+	total_reward = int(total_reward * UpgradeShop.get_reward_multiplier())
 	GameManager.add_coins(total_reward)
 	order_filled.emit(total_reward)
 
 func _on_customer_left(_customer: CharacterBody2D) -> void:
 	current_customer = null
 	customers_served_today += 1
-	# Small delay before next customer
-	var timer = shop_node.get_tree().create_timer(2.0)
+	# Small delay before next customer (bell upgrade speeds it up)
+	var UpgradeShop = load("res://scripts/shop/upgrade_shop.gd")
+	var delay = 2.0 if not UpgradeShop.has_upgrade("bell") else 1.0
+	var timer = shop_node.get_tree().create_timer(delay)
 	timer.timeout.connect(_spawn_next_customer)
 
 func get_current_customer() -> CharacterBody2D:

@@ -82,6 +82,9 @@ func start_puzzle(id: String, items_to_remember: Array[String]) -> void:
 
 	# Show items for a few seconds, then hide
 	var reveal_time = 2.0 + (target_items.size() * 0.5)
+	# Display Case upgrade gives extra reveal time
+	var UpgradeShop = load("res://scripts/shop/upgrade_shop.gd")
+	reveal_time += UpgradeShop.get_memory_bonus_time()
 	var timer = get_tree().create_timer(reveal_time)
 	timer.timeout.connect(_hide_items)
 

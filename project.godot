@@ -32,16 +32,16 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
 
+[gui]
+
+theme/default_font_size=28
+
 [input]
 
 touch={
 "deadzone": 0.5,
 "events": []
 }
-
-[gui]
-
-theme/default_font_size=28
 
 [rendering]
 
