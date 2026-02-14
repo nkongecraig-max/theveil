@@ -10,10 +10,19 @@ extends Control
 @onready var settings_btn: Button = %SettingsBtn
 
 func _ready() -> void:
-	# Check if save exists to show/hide continue button
-	continue_btn.visible = SaveManager.has_save()
+	# Add atmospheric background
+	var bg_node = Node2D.new()
+	bg_node.name = "MenuBG"
+	bg_node.z_index = -10
+	bg_node.set_script(load("res://scripts/visual/menu_background.gd"))
+	add_child(bg_node)
+	move_child(bg_node, 0)
+	$Background.visible = false
+	# Style the title
+	title_label.add_theme_color_override("font_color", Color(0.85, 0.8, 0.95))
+	subtitle_label.add_theme_color_override("font_color", Color(0.6, 0.55, 0.7))
 
-	# Connect buttons
+	continue_btn.visible = SaveManager.has_save()
 	new_game_btn.pressed.connect(_on_new_game)
 	continue_btn.pressed.connect(_on_continue)
 	settings_btn.pressed.connect(_on_settings)

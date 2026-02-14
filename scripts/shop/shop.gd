@@ -38,6 +38,7 @@ var counter_zone: Rect2 = Rect2(140, 850, 440, 180)
 const INTERACT_DISTANCE: float = 300.0
 
 func _ready() -> void:
+	_setup_visuals()
 	_setup_collisions()
 	_register_ad_surfaces()
 	_update_hud()
@@ -169,6 +170,42 @@ func _show_day_summary() -> void:
 				_show_day_summary()
 			, CONNECT_ONE_SHOT)
 		)
+
+func _setup_visuals() -> void:
+	# Add procedural shop background (draws behind everything)
+	var shop_vis = Node2D.new()
+	shop_vis.name = "ShopVisuals"
+	shop_vis.z_index = -5
+	shop_vis.set_script(load("res://scripts/visual/shop_visuals.gd"))
+	add_child(shop_vis)
+	move_child(shop_vis, 0)
+	# Hide all ColorRect placeholders
+	for node_name in ["Floor", "WallBack", "WallLeft", "WallRight", "Counter", "CounterLabel", "CounterFront", "DoorMat", "DoorLabel"]:
+		var node = get_node_or_null(node_name)
+		if node:
+			node.visible = false
+	# Hide shelf visuals (keep StaticBody2D for collision)
+	for shelf_name in ["ShelfLeft", "ShelfRight", "ShelfBackLeft", "ShelfBackRight"]:
+		var shelf = get_node_or_null(shelf_name)
+		if shelf:
+			for child in shelf.get_children():
+				if child is ColorRect or child is Label:
+					child.visible = false
+	# Hide ad surface placeholders (frame is drawn by ShopVisuals)
+	for ad_name in ["AdBillboardBorder", "AdBillboardLabel"]:
+		var node = get_node_or_null(ad_name)
+		if node:
+			node.visible = false
+	# Hide player ColorRects (replaced by PlayerVisual)
+	for child_name in ["PlayerOutline", "PlayerVisual", "PlayerLabel"]:
+		var node = player.get_node_or_null(child_name)
+		if node:
+			node.visible = false
+	# Add player visual
+	var pv = Node2D.new()
+	pv.name = "PlayerArt"
+	pv.set_script(load("res://scripts/visual/player_visual.gd"))
+	player.add_child(pv)
 
 func _setup_collisions() -> void:
 	var player_shape = RectangleShape2D.new()

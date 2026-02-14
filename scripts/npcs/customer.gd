@@ -35,7 +35,15 @@ func setup(data: Dictionary) -> void:
 	recipe_name = data.get("recipe_name", "")
 
 func _ready() -> void:
-	visual.color = customer_color
+	# Hide old ColorRect placeholders
+	visual.visible = false
+	outline.visible = false
+	# Add procedural character visual
+	var cv = Node2D.new()
+	cv.name = "CustomerArt"
+	cv.set_script(load("res://scripts/visual/customer_visual.gd"))
+	add_child(cv)
+	cv.setup_appearance(customer_color, customer_name)
 	name_label.text = customer_name
 	speech_label.text = ""
 	global_position = entry_pos
