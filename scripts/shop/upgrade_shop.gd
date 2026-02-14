@@ -3,19 +3,20 @@ extends Control
 ## UpgradeShop - Panel where players spend coins on shop improvements.
 ## Opens from the day summary screen or a dedicated tap zone.
 ## Purchased upgrades are tracked in GameManager.shop_upgrades.
+## UI is built in code to avoid tscn parsing issues.
 
 signal upgrade_purchased(upgrade_id: String)
 signal panel_closed()
 
-@onready var panel_bg: ColorRect = $PanelBG
-@onready var title_label: Label = $PanelBG/TitleLabel
-@onready var coins_display: Label = $PanelBG/CoinsDisplay
-@onready var item_container: VBoxContainer = $PanelBG/ScrollContainer/ItemContainer
-@onready var close_btn: Button = $PanelBG/CloseBtn
+var panel_bg: ColorRect
+var title_label: Label
+var coins_display: Label
+var item_container: VBoxContainer
+var close_btn: Button
 
 var is_open: bool = false
 
-# All available upgrades — id, name, description, cost, icon_color, effect
+# All available upgrades
 var upgrade_catalog: Array[Dictionary] = [
 	{
 		"id": "better_counter",
@@ -23,7 +24,6 @@ var upgrade_catalog: Array[Dictionary] = [
 		"desc": "A sturdy counter. Customers tip 2 extra coins.",
 		"cost": 25,
 		"color": Color(0.55, 0.4, 0.25),
-		"tier": 1,
 	},
 	{
 		"id": "shop_sign",
@@ -31,7 +31,6 @@ var upgrade_catalog: Array[Dictionary] = [
 		"desc": "Hang a sign outside. +1 customer per day.",
 		"cost": 30,
 		"color": Color(0.8, 0.65, 0.3),
-		"tier": 1,
 	},
 	{
 		"id": "lantern",
@@ -39,7 +38,6 @@ var upgrade_catalog: Array[Dictionary] = [
 		"desc": "Cozy lighting. Puzzle time limits are more forgiving.",
 		"cost": 20,
 		"color": Color(0.9, 0.75, 0.4),
-		"tier": 1,
 	},
 	{
 		"id": "herb_garden",
@@ -47,7 +45,6 @@ var upgrade_catalog: Array[Dictionary] = [
 		"desc": "Grow your own herbs. Recipe puzzles give +3 bonus.",
 		"cost": 40,
 		"color": Color(0.4, 0.7, 0.35),
-		"tier": 2,
 	},
 	{
 		"id": "display_case",
@@ -55,7 +52,6 @@ var upgrade_catalog: Array[Dictionary] = [
 		"desc": "Show off goods. Memory puzzles reveal 1 extra second.",
 		"cost": 35,
 		"color": Color(0.6, 0.75, 0.85),
-		"tier": 2,
 	},
 	{
 		"id": "bell",
@@ -63,7 +59,6 @@ var upgrade_catalog: Array[Dictionary] = [
 		"desc": "Ding! Customers arrive faster between orders.",
 		"cost": 50,
 		"color": Color(0.85, 0.8, 0.3),
-		"tier": 2,
 	},
 	{
 		"id": "premium_shelves",
@@ -71,7 +66,6 @@ var upgrade_catalog: Array[Dictionary] = [
 		"desc": "Fine wood shelving. All rewards +20%.",
 		"cost": 75,
 		"color": Color(0.5, 0.35, 0.2),
-		"tier": 3,
 	},
 	{
 		"id": "garden_expansion",
@@ -79,13 +73,66 @@ var upgrade_catalog: Array[Dictionary] = [
 		"desc": "Bigger garden. Unlocks rare recipe ingredients.",
 		"cost": 60,
 		"color": Color(0.3, 0.6, 0.3),
-		"tier": 3,
 	},
 ]
 
 func _ready() -> void:
+	_build_ui()
 	visible = false
 	close_btn.pressed.connect(close_panel)
+
+func _build_ui() -> void:
+	# Dimmer
+	var dimmer = ColorRect.new()
+	dimmer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dimmer.color = Color(0.06, 0.05, 0.08, 0.75)
+	dimmer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(dimmer)
+
+	# Panel background
+	panel_bg = ColorRect.new()
+	panel_bg.position = Vector2(40, 120)
+	panel_bg.size = Vector2(640, 1040)
+	panel_bg.color = Color(0.94, 0.92, 0.88)
+	add_child(panel_bg)
+
+	# Title
+	title_label = Label.new()
+	title_label.text = "Shop Upgrades"
+	title_label.add_theme_font_size_override("font_size", 36)
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_label.position = Vector2(20, 16)
+	title_label.size = Vector2(600, 54)
+	panel_bg.add_child(title_label)
+
+	# Coins display
+	coins_display = Label.new()
+	coins_display.text = "0 coins available"
+	coins_display.add_theme_font_size_override("font_size", 24)
+	coins_display.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	coins_display.position = Vector2(20, 72)
+	coins_display.size = Vector2(600, 33)
+	panel_bg.add_child(coins_display)
+
+	# Scroll container
+	var scroll = ScrollContainer.new()
+	scroll.position = Vector2(16, 115)
+	scroll.size = Vector2(608, 820)
+	panel_bg.add_child(scroll)
+
+	# Item container inside scroll
+	item_container = VBoxContainer.new()
+	item_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	item_container.add_theme_constant_override("separation", 8)
+	scroll.add_child(item_container)
+
+	# Close button
+	close_btn = Button.new()
+	close_btn.text = "Close"
+	close_btn.add_theme_font_size_override("font_size", 28)
+	close_btn.position = Vector2(200, 950)
+	close_btn.size = Vector2(240, 60)
+	panel_bg.add_child(close_btn)
 
 func open_panel() -> void:
 	if is_open:
@@ -95,15 +142,15 @@ func open_panel() -> void:
 	_update_coins_display()
 	visible = true
 	# Slide up
-	panel_bg.position.y = 600.0
+	panel_bg.position.y = 1300.0
 	var tween = create_tween()
-	tween.tween_property(panel_bg, "position:y", 0.0, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tween.tween_property(panel_bg, "position:y", 120.0, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 
 func close_panel() -> void:
 	if not is_open:
 		return
 	var tween = create_tween()
-	tween.tween_property(panel_bg, "position:y", 600.0, 0.2).set_ease(Tween.EASE_IN)
+	tween.tween_property(panel_bg, "position:y", 1300.0, 0.2).set_ease(Tween.EASE_IN)
 	tween.tween_callback(func():
 		visible = false
 		is_open = false
@@ -116,7 +163,6 @@ func _update_coins_display() -> void:
 func _refresh_list() -> void:
 	for child in item_container.get_children():
 		child.queue_free()
-
 	for upgrade in upgrade_catalog:
 		_add_upgrade_card(upgrade)
 
@@ -135,7 +181,6 @@ func _add_upgrade_card(upgrade: Dictionary) -> void:
 	swatch.custom_minimum_size = Vector2(60, 60)
 	swatch.color = upgrade["color"]
 	if owned:
-		# Add a checkmark overlay effect — dim the color
 		swatch.color = upgrade["color"].lightened(0.3)
 	hbox.add_child(swatch)
 
@@ -179,31 +224,23 @@ func _add_upgrade_card(upgrade: Dictionary) -> void:
 	item_container.add_child(card)
 
 func _buy_upgrade(upgrade_id: String) -> void:
-	# Find the upgrade data
 	var upgrade_data: Dictionary = {}
 	for u in upgrade_catalog:
 		if u["id"] == upgrade_id:
 			upgrade_data = u
 			break
-
 	if upgrade_data.is_empty():
 		return
-
-	# Try to spend coins
 	if not GameManager.spend_coins(upgrade_data["cost"]):
 		return
 
-	# Track the purchase
 	GameManager.shop_upgrades.append(upgrade_id)
 	upgrade_purchased.emit(upgrade_id)
 	Analytics.track_event("upgrade_purchased", {"id": upgrade_id, "cost": upgrade_data["cost"]})
 	print("[UpgradeShop] Purchased: %s for %d coins" % [upgrade_data["name"], upgrade_data["cost"]])
 
-	# Refresh the list to show owned state
 	_refresh_list()
 	_update_coins_display()
-
-	# Flash feedback
 	_show_purchase_flash()
 
 func _show_purchase_flash() -> void:
@@ -216,37 +253,32 @@ func _show_purchase_flash() -> void:
 	tween.tween_property(flash, "modulate:a", 0.0, 0.4)
 	tween.tween_callback(func(): flash.queue_free())
 
-# -- Upgrade effect helpers (called by shop.gd) --
+# -- Upgrade effect helpers (called by other scripts) --
 
 static func has_upgrade(upgrade_id: String) -> bool:
 	return upgrade_id in GameManager.shop_upgrades
 
 static func get_tip_bonus() -> int:
-	# Oak Counter gives +2 tip
 	if "better_counter" in GameManager.shop_upgrades:
 		return 2
 	return 0
 
 static func get_extra_customers() -> int:
-	# Shop Sign gives +1 customer
 	if "shop_sign" in GameManager.shop_upgrades:
 		return 1
 	return 0
 
 static func get_memory_bonus_time() -> float:
-	# Display Case gives +1s reveal
 	if "display_case" in GameManager.shop_upgrades:
 		return 1.0
 	return 0.0
 
 static func get_recipe_bonus() -> int:
-	# Herb Garden gives +3 recipe reward
 	if "herb_garden" in GameManager.shop_upgrades:
 		return 3
 	return 0
 
 static func get_reward_multiplier() -> float:
-	# Premium Shelves gives 1.2x
 	if "premium_shelves" in GameManager.shop_upgrades:
 		return 1.2
 	return 1.0
