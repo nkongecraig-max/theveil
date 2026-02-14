@@ -54,6 +54,8 @@ func _draw() -> void:
 	draw_rect(Rect2(-8 - leg_anim, 17 + bob, 8, 5), Color(0.35, 0.28, 0.22))
 	draw_rect(Rect2(0 + leg_anim, 17 + bob, 8, 5), Color(0.35, 0.28, 0.22))
 
+	# Body outline
+	draw_rect(Rect2(-11, -6 + bob, 22, 19), Color(0.12, 0.1, 0.08))
 	# Body
 	draw_rect(Rect2(-10, -5 + bob, 20, 17), body_color)
 	# Shirt detail/pattern
@@ -68,8 +70,9 @@ func _draw() -> void:
 	draw_circle(Vector2(-10.5, 10 + bob - arm_swing), 2.5, Color(0.82, 0.68, 0.55))
 	draw_circle(Vector2(10.5, 10 + bob + arm_swing), 2.5, Color(0.82, 0.68, 0.55))
 
-	# Head
-	var skin = Color(0.82, 0.68, 0.55)
+	# Head outline + head
+	draw_circle(Vector2(0, -14 + bob), 11, Color(0.12, 0.1, 0.08))
+	var skin = Color(0.85, 0.72, 0.58)
 	draw_circle(Vector2(0, -14 + bob), 10, skin)
 
 	# Hair by style
@@ -90,11 +93,13 @@ func _draw() -> void:
 				var spike_end = Vector2(cos(angle) * 15, sin(angle) * 15 - 14 + bob)
 				draw_line(spike_pos, spike_end, hair_color, 3)
 
-	# Eyes
-	draw_circle(Vector2(-3.5 * sx, -15 + bob), 1.8, Color(0.15, 0.12, 0.1))
-	draw_circle(Vector2(3.5 * sx, -15 + bob), 1.8, Color(0.15, 0.12, 0.1))
-	draw_circle(Vector2(-3 * sx, -15.5 + bob), 0.7, Color(1, 1, 1, 0.6))
-	draw_circle(Vector2(4 * sx, -15.5 + bob), 0.7, Color(1, 1, 1, 0.6))
+	# Eyes — whites, pupils, shine
+	draw_circle(Vector2(-3.5 * sx, -15 + bob), 2.8, Color(1, 1, 1))
+	draw_circle(Vector2(3.5 * sx, -15 + bob), 2.8, Color(1, 1, 1))
+	draw_circle(Vector2(-3.5 * sx, -15 + bob), 1.8, Color(0.12, 0.1, 0.08))
+	draw_circle(Vector2(3.5 * sx, -15 + bob), 1.8, Color(0.12, 0.1, 0.08))
+	draw_circle(Vector2(-3 * sx, -15.5 + bob), 0.9, Color(1, 1, 1, 0.9))
+	draw_circle(Vector2(4 * sx, -15.5 + bob), 0.9, Color(1, 1, 1, 0.9))
 
 	# Mouth
 	draw_arc(Vector2(0, -10 + bob), 2.5, deg_to_rad(10), deg_to_rad(170), 6, Color(0.55, 0.3, 0.25), 1.0)

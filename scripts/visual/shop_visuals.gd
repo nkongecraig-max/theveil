@@ -5,14 +5,14 @@ extends Node2D
 
 const DU = preload("res://scripts/visual/draw_utils.gd")
 
-# Palette
-var floor_color := Color(0.82, 0.75, 0.65)
-var wall_color := Color(0.78, 0.72, 0.68)
-var wall_back_color := Color(0.72, 0.66, 0.62)
-var counter_wood := Color(0.52, 0.38, 0.28)
-var shelf_wood := Color(0.58, 0.48, 0.36)
-var door_color := Color(0.45, 0.35, 0.25)
-var trim_color := Color(0.65, 0.55, 0.42)
+# Palette — high contrast, warm cozy tones
+var floor_color := Color(0.76, 0.68, 0.55)
+var wall_color := Color(0.62, 0.55, 0.50)
+var wall_back_color := Color(0.55, 0.48, 0.44)
+var counter_wood := Color(0.48, 0.32, 0.20)
+var shelf_wood := Color(0.52, 0.40, 0.28)
+var door_color := Color(0.38, 0.28, 0.18)
+var trim_color := Color(0.72, 0.60, 0.42)
 
 func _draw() -> void:
 	# --- Floor: stone tiles ---
@@ -76,6 +76,19 @@ func _draw() -> void:
 	# --- Floor rug near counter ---
 	_draw_rug(Vector2(260, 1020), Vector2(200, 100))
 
+	# --- Warm ambient light from window ---
+	var light_color = Color(1.0, 0.95, 0.8, 0.06)
+	draw_rect(Rect2(480, 100, 200, 500), light_color)
+	draw_rect(Rect2(500, 100, 160, 400), Color(1.0, 0.95, 0.8, 0.04))
+
+	# --- Edge vignette for depth ---
+	for i in 8:
+		var alpha = 0.03 * (8 - i)
+		draw_rect(Rect2(42, i * 2, 636, 2), Color(0, 0, 0, alpha))  # top
+		draw_rect(Rect2(42, 1278 - i * 2, 636, 2), Color(0, 0, 0, alpha))  # bottom
+		draw_rect(Rect2(42, 0, i * 2, 1280), Color(0, 0, 0, alpha * 0.5))  # left
+		draw_rect(Rect2(678 - i * 2, 0, i * 2, 1280), Color(0, 0, 0, alpha * 0.5))  # right
+
 func _draw_shelf_unit(pos: Vector2, size: Vector2) -> void:
 	# Shadow
 	draw_rect(Rect2(pos.x + 4, pos.y + 4, size.x, size.y), Color(0, 0, 0, 0.12))
@@ -95,7 +108,7 @@ func _draw_shelf_unit(pos: Vector2, size: Vector2) -> void:
 	# Items on shelves (colored circles as goods)
 	var rng = RandomNumberGenerator.new()
 	rng.seed = int(pos.x * 7 + pos.y)
-	var item_colors = [Color(0.82, 0.68, 0.38), Color(0.35, 0.6, 0.3), Color(0.92, 0.88, 0.55), Color(0.72, 0.58, 0.78), Color(0.7, 0.5, 0.35)]
+	var item_colors = [Color(0.9, 0.72, 0.3), Color(0.3, 0.65, 0.28), Color(0.95, 0.85, 0.35), Color(0.7, 0.45, 0.8), Color(0.78, 0.5, 0.3)]
 	for i in shelf_count:
 		var sy = pos.y + (i + 1) * (size.y / (shelf_count + 1)) - 14
 		var item_count = rng.randi_range(2, 4)
@@ -103,9 +116,13 @@ func _draw_shelf_unit(pos: Vector2, size: Vector2) -> void:
 		for j in item_count:
 			var ix = pos.x + (j + 1) * spacing
 			var c = item_colors[rng.randi() % item_colors.size()]
-			# Small jar/bottle shape
+			# Small jar/bottle shape with outline
+			draw_rect(Rect2(ix - 7, sy - 9, 14, 14), Color(0.2, 0.15, 0.1))
 			draw_rect(Rect2(ix - 6, sy - 8, 12, 12), c)
+			draw_rect(Rect2(ix - 4, sy - 13, 8, 6), Color(0.2, 0.15, 0.1))
 			draw_rect(Rect2(ix - 3, sy - 12, 6, 5), c.lightened(0.15))
+			# Shine
+			draw_rect(Rect2(ix - 4, sy - 6, 2, 4), Color(1, 1, 1, 0.2))
 
 func _draw_back_shelf(pos: Vector2, size: Vector2) -> void:
 	draw_rect(Rect2(pos.x + 2, pos.y + 2, size.x, size.y), Color(0, 0, 0, 0.1))

@@ -28,9 +28,9 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	# Background gradient
-	var top_color = Color(0.08, 0.07, 0.12)
-	var mid_color = Color(0.12, 0.1, 0.18)
-	var bot_color = Color(0.15, 0.12, 0.2)
+	var top_color = Color(0.04, 0.03, 0.08)
+	var mid_color = Color(0.08, 0.06, 0.14)
+	var bot_color = Color(0.12, 0.08, 0.18)
 	var band_h = 1280.0 / 16.0
 	for i in 16:
 		var t = float(i) / 16.0
@@ -56,14 +56,14 @@ func _draw() -> void:
 		if px < 0:
 			px += 720.0
 		var alpha = p["alpha"] * (0.7 + sin(time * 1.5 + p["phase"]) * 0.3)
-		draw_circle(Vector2(px, py), p["size"], Color(0.7, 0.65, 0.8, alpha))
+		draw_circle(Vector2(px, py), p["size"], Color(0.8, 0.75, 0.95, alpha))
 
 	# Central soft glow
 	for r in 4:
 		var radius = 80.0 + r * 30.0
 		var alpha = 0.02 - r * 0.004
 		if alpha > 0:
-			draw_circle(Vector2(360, 480), radius, Color(0.5, 0.45, 0.65, alpha))
+			draw_circle(Vector2(360, 480), radius, Color(0.55, 0.45, 0.75, alpha))
 
 	# Bottom fade
 	for i in 8:
