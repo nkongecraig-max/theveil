@@ -10,11 +10,13 @@ var hair_color := Color(0.2, 0.15, 0.3)
 var facing_left := false
 var is_walking := false
 var walk_cycle: float = 0.0
+var idle_time: float = 0.0
 
 func _process(delta: float) -> void:
 	var parent = get_parent()
 	if parent and parent.velocity.length() > 10:
 		is_walking = true
+		idle_time = 0.0
 		if parent.velocity.x < -5:
 			facing_left = true
 		elif parent.velocity.x > 5:
@@ -23,10 +25,13 @@ func _process(delta: float) -> void:
 	else:
 		is_walking = false
 		walk_cycle = 0.0
+		idle_time += delta
 	queue_redraw()
 
 func _draw() -> void:
-	var bob = sin(walk_cycle) * 2.0 if is_walking else 0.0
+	# Idle breathing bob — gentle up/down
+	var idle_bob = sin(idle_time * 1.8) * 1.2 if not is_walking else 0.0
+	var bob = sin(walk_cycle) * 2.0 if is_walking else idle_bob
 	var lean = sin(walk_cycle * 0.5) * 1.5 if is_walking else 0.0
 
 	# Shadow
@@ -72,8 +77,9 @@ func _draw() -> void:
 	draw_rect(Rect2(7 + lean, -22 + bob, 4, 10), hair_color)
 
 	# Face
-	# Eyes
-	var blink = fmod(walk_cycle, 6.0) < 0.15
+	# Eyes — blink every ~3 seconds when idle, or based on walk cycle
+	var blink_timer = idle_time if not is_walking else walk_cycle
+	var blink = fmod(blink_timer, 3.2) < 0.12
 	if blink:
 		draw_line(Vector2(-4 * sx + lean, -17 + bob), Vector2(-2 * sx + lean, -17 + bob), Color(0.15, 0.12, 0.1), 1.5)
 		draw_line(Vector2(4 * sx + lean, -17 + bob), Vector2(2 * sx + lean, -17 + bob), Color(0.15, 0.12, 0.1), 1.5)

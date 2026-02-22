@@ -24,6 +24,10 @@ var customer_pool: Array[Dictionary] = [
 		"items": ["coffee", "spices"],
 		"reward": 10,
 		"puzzle_type": "sorting",
+		"patience": 22.0,
+		"greeting": "Morning! I need a quick pick-me-up.",
+		"thanks": "Perfect, just what I needed!",
+		"impatient": "I'm running late...",
 	},
 	{
 		"name": "Old Jin",
@@ -33,6 +37,10 @@ var customer_pool: Array[Dictionary] = [
 		"puzzle_type": "recipe",
 		"recipe_id": "mulled_wine",
 		"recipe_name": "Mulled Wine",
+		"patience": 25.0,
+		"greeting": "Ah, young one. Can you make something warm?",
+		"thanks": "Mmm, reminds me of the old days.",
+		"impatient": "These old bones can't wait forever...",
 	},
 	{
 		"name": "Kess",
@@ -40,6 +48,10 @@ var customer_pool: Array[Dictionary] = [
 		"items": ["leather", "spices", "coffee"],
 		"reward": 18,
 		"puzzle_type": "sorting",
+		"patience": 18.0,
+		"greeting": "Hey! Got a big list today.",
+		"thanks": "You're the best! See you tomorrow!",
+		"impatient": "Come onnnn, I have places to be!",
 	},
 	{
 		"name": "Davi",
@@ -49,6 +61,10 @@ var customer_pool: Array[Dictionary] = [
 		"puzzle_type": "recipe",
 		"recipe_id": "cocktail_kit",
 		"recipe_name": "Cocktail Kit",
+		"patience": 20.0,
+		"greeting": "Hosting a party tonight. Help me out?",
+		"thanks": "This is gonna be epic!",
+		"impatient": "Guests are already arriving...",
 	},
 	{
 		"name": "Renna",
@@ -58,6 +74,10 @@ var customer_pool: Array[Dictionary] = [
 		"puzzle_type": "recipe",
 		"recipe_id": "spiced_coffee",
 		"recipe_name": "Spiced Coffee",
+		"patience": 24.0,
+		"greeting": "Hello there! Something cozy today.",
+		"thanks": "Oh, this smells divine!",
+		"impatient": "Taking a while, isn't it...",
 	},
 	{
 		"name": "Fela",
@@ -67,6 +87,10 @@ var customer_pool: Array[Dictionary] = [
 		"puzzle_type": "recipe",
 		"recipe_id": "infused_spirits",
 		"recipe_name": "Infused Spirits",
+		"patience": 20.0,
+		"greeting": "I heard you make the best infusions!",
+		"thanks": "My friends will love this!",
+		"impatient": "Maybe I'll try the other shop...",
 	},
 	{
 		"name": "Tomas",
@@ -76,6 +100,10 @@ var customer_pool: Array[Dictionary] = [
 		"puzzle_type": "recipe",
 		"recipe_id": "premium_bundle",
 		"recipe_name": "Premium Bundle",
+		"patience": 18.0,
+		"greeting": "I need your finest selection.",
+		"thanks": "Excellent quality as always.",
+		"impatient": "I'm a busy man, you know.",
 	},
 	{
 		"name": "Suki",
@@ -83,6 +111,10 @@ var customer_pool: Array[Dictionary] = [
 		"items": ["coffee", "wine"],
 		"reward": 14,
 		"puzzle_type": "memory",
+		"patience": 22.0,
+		"greeting": "Remember what I got last time?",
+		"thanks": "You never forget! Love it!",
+		"impatient": "Hmm, can't remember, huh?",
 	},
 	{
 		"name": "Brick",
@@ -90,6 +122,10 @@ var customer_pool: Array[Dictionary] = [
 		"items": ["spirits", "leather", "tools"],
 		"reward": 26,
 		"puzzle_type": "memory",
+		"patience": 15.0,
+		"greeting": "Same as usual. You know the drill.",
+		"thanks": "Solid. Real solid.",
+		"impatient": "...",
 	},
 ]
 

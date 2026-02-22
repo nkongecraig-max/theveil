@@ -19,6 +19,8 @@ var day_night: CanvasModulate = null
 var tap_juice: Node2D = null
 var shelf_stock: Node2D = null
 var day_intro: Control = null
+var screen_shake: Node = null
+var milestone_popup: Control = null
 var coins_earned_today: int = 0
 var _intro_playing: bool = false
 
@@ -183,13 +185,28 @@ func _on_order_filled(reward: int) -> void:
 		# Floating coin text
 		if reward > 0:
 			tap_juice.spawn_floating_text(Vector2(360, 860), "+%d coins" % reward, Color(1.0, 0.9, 0.3))
+			# Screen shake — bigger for bigger rewards
+			if screen_shake:
+				screen_shake.shake(clampf(reward * 0.3, 3.0, 12.0))
 			# Streak flash
 			var streak = customer_manager.get_streak()
 			if streak >= 2:
 				tap_juice.spawn_streak_flash(Vector2(360, 780), streak)
+				if streak >= 3 and screen_shake:
+					screen_shake.shake(10.0 + streak * 2.0, 6.0)
 		else:
 			tap_juice.spawn_floating_text(Vector2(360, 860), "Too slow!", Color(0.9, 0.3, 0.3))
+			if screen_shake:
+				screen_shake.shake(6.0, 10.0)  # Quick sharp shake
 	print("[Shop] Order filled! Earned %d coins." % reward)
+	# Check milestones
+	if milestone_popup:
+		milestone_popup.check_milestones({
+			"coins": GameManager.player_coins,
+			"streak": customer_manager.get_streak(),
+			"day": GameManager.current_day,
+			"puzzles": GameManager.puzzles_completed,
+		})
 
 func _on_stock_changed(_shelf_id: String, _level: int) -> void:
 	_update_hud()
@@ -391,6 +408,12 @@ func _setup_visuals() -> void:
 	if shelf_stock:
 		shelf_stock.stock_changed.connect(_on_stock_changed)
 		shelf_stock.restock_complete.connect(_on_restock_complete)
+	# Screen shake for impact
+	screen_shake = Node.new()
+	screen_shake.name = "ScreenShake"
+	screen_shake.set_script(load("res://scripts/visual/screen_shake.gd"))
+	add_child(screen_shake)
+	screen_shake.setup(camera)
 	# Day intro overlay (lives in UI CanvasLayer)
 	day_intro = Control.new()
 	day_intro.name = "DayIntro"
@@ -398,6 +421,13 @@ func _setup_visuals() -> void:
 	day_intro.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	day_intro.set_script(load("res://scripts/ui/day_intro.gd"))
 	$UI.add_child(day_intro)
+	# Milestone popup system
+	milestone_popup = Control.new()
+	milestone_popup.name = "MilestonePopup"
+	milestone_popup.anchors_preset = Control.PRESET_FULL_RECT
+	milestone_popup.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	milestone_popup.set_script(load("res://scripts/ui/milestone_popup.gd"))
+	$UI.add_child(milestone_popup)
 
 func _setup_collisions() -> void:
 	var player_shape = RectangleShape2D.new()
