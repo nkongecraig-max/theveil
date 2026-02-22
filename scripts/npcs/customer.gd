@@ -7,6 +7,8 @@ signal arrived_at_counter(customer: CharacterBody2D)
 signal order_completed(customer: CharacterBody2D, reward: int)
 signal customer_left(customer: CharacterBody2D)
 
+const DU = preload("res://scripts/visual/draw_utils.gd")
+
 @onready var visual: ColorRect = $Visual
 @onready var outline: ColorRect = $Outline
 @onready var name_label: Label = $NameLabel
@@ -105,6 +107,7 @@ func _show_request() -> void:
 	# Show greeting first, then request after a beat
 	if greeting_text != "":
 		speech_label.text = greeting_text
+		queue_redraw()
 		var timer = get_tree().create_timer(1.5)
 		timer.timeout.connect(func():
 			if state == "waiting":
@@ -123,11 +126,13 @@ func _show_order_text() -> void:
 		for item_id in requested_items:
 			item_names.append(item_id.capitalize())
 		speech_label.text = "I need: %s" % ", ".join(item_names)
+	queue_redraw()
 
 func complete_order() -> void:
 	speech_label.text = thanks_text
 	state = "leaving"
 	order_completed.emit(self, reward_coins)
+	queue_redraw()
 
 func get_patience_bonus() -> float:
 	## Returns a multiplier based on how quickly the player served them.
@@ -152,15 +157,44 @@ func fail_order() -> void:
 	)
 
 func _draw() -> void:
+	# --- Name plate background (always visible) ---
+	var np = Rect2(-55, -46, 110, 28)
+	# Shadow
+	draw_rect(Rect2(np.position.x + 2, np.position.y + 2, np.size.x, np.size.y), Color(0, 0, 0, 0.2))
+	# Background
+	DU.draw_rounded_panel(self, np, Color(0.12, 0.1, 0.15, 0.82), 5.0)
+	# Color accent dot
+	draw_circle(Vector2(-44, -32), 3.5, customer_color.lightened(0.15))
+
+	# --- Speech bubble background (when text showing) ---
+	if speech_label.text != "":
+		var sb = Rect2(-125, 18, 250, 64)
+		# Shadow
+		draw_rect(Rect2(sb.position.x + 3, sb.position.y + 3, sb.size.x, sb.size.y), Color(0, 0, 0, 0.22))
+		# Background
+		DU.draw_rounded_panel(self, sb, Color(0.1, 0.08, 0.14, 0.92), 8.0)
+		# Colored accent strip on left
+		draw_rect(Rect2(sb.position.x + 3, sb.position.y + 8, 4, sb.size.y - 16), customer_color.lightened(0.15))
+		# Top highlight
+		draw_rect(Rect2(sb.position.x + 10, sb.position.y + 1, sb.size.x - 20, 1), Color(1, 1, 1, 0.08))
+		# Tail pointing up to character
+		var tail = PackedVector2Array([
+			Vector2(-8, sb.position.y),
+			Vector2(8, sb.position.y),
+			Vector2(0, sb.position.y - 8),
+		])
+		draw_colored_polygon(tail, Color(0.1, 0.08, 0.14, 0.92))
+
+	# --- Patience bar (only when waiting) ---
 	if state != "waiting":
 		return
-	# Draw patience bar above the customer
-	var bar_w := 60.0
+	var bar_w := 64.0
 	var bar_h := 8.0
-	var bar_y := -50.0
+	var bar_y := -56.0
 	var bg_rect = Rect2(-bar_w / 2, bar_y, bar_w, bar_h)
 	# Background
-	draw_rect(bg_rect, Color(0.15, 0.12, 0.1, 0.7))
+	draw_rect(Rect2(bg_rect.position.x + 1, bg_rect.position.y + 1, bg_rect.size.x, bg_rect.size.y), Color(0, 0, 0, 0.15))
+	draw_rect(bg_rect, Color(0.15, 0.12, 0.1, 0.75))
 	# Fill — color shifts green -> yellow -> orange -> red
 	var fill_w = bar_w * patience_ratio
 	var bar_color: Color
@@ -169,9 +203,12 @@ func _draw() -> void:
 	elif patience_ratio > 0.35:
 		bar_color = Color(0.95, 0.75, 0.15)
 	else:
-		# Pulse red when low
 		var pulse = (sin(_patience_pulse * 6.0) + 1.0) / 2.0
 		bar_color = Color(0.95, 0.2 + 0.15 * pulse, 0.1)
 	draw_rect(Rect2(-bar_w / 2, bar_y, fill_w, bar_h), bar_color)
 	# Border
 	draw_rect(bg_rect, Color(0.3, 0.25, 0.2), false, 1.5)
+	# Tick marks at 25%, 50%, 75%
+	for tick in [0.25, 0.5, 0.75]:
+		var tx = -bar_w / 2 + bar_w * tick
+		draw_rect(Rect2(tx, bar_y, 1, bar_h), Color(0, 0, 0, 0.2))

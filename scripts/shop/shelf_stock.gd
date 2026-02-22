@@ -93,24 +93,59 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	var pulse_val = (sin(_pulse * 3.5) + 1.0) / 2.0
+	var font = ThemeDB.fallback_font
 	for sid in stock:
 		var missing = max_stock[sid] - stock[sid]
 		if missing <= 0:
 			continue
 		var rect: Rect2 = shelf_rects[sid]
 		var ratio = float(missing) / float(max_stock[sid])
-		# Dark overlay — more depleted = darker
-		draw_rect(rect, Color(0, 0, 0, 0.12 * ratio))
-		# Pulsing orange warning border
-		var alpha = (0.25 + 0.25 * pulse_val) * ratio
-		var warn = Color(1.0, 0.55, 0.1, alpha)
-		draw_rect(Rect2(rect.position.x, rect.position.y, rect.size.x, 3), warn)
-		draw_rect(Rect2(rect.position.x, rect.end.y - 3, rect.size.x, 3), warn)
-		draw_rect(Rect2(rect.position.x, rect.position.y, 3, rect.size.y), warn)
-		draw_rect(Rect2(rect.end.x - 3, rect.position.y, 3, rect.size.y), warn)
-		# Center restock indicator dot when fully empty
+		# Multi-layer glow — outer soft, inner sharp
+		var glow_base = (0.15 + 0.2 * pulse_val) * ratio
+		# Outer soft glow
+		draw_rect(Rect2(rect.position.x - 8, rect.position.y - 8, rect.size.x + 16, rect.size.y + 16), Color(1.0, 0.5, 0.1, glow_base * 0.4))
+		# Mid glow
+		draw_rect(Rect2(rect.position.x - 4, rect.position.y - 4, rect.size.x + 8, rect.size.y + 8), Color(1.0, 0.55, 0.1, glow_base * 0.5))
+		# Dark overlay
+		draw_rect(rect, Color(0, 0, 0, 0.15 * ratio))
+		# Thick pulsing border (6px)
+		var border_a = (0.4 + 0.4 * pulse_val) * ratio
+		var warn = Color(1.0, 0.5, 0.1, border_a)
+		draw_rect(Rect2(rect.position.x, rect.position.y, rect.size.x, 6), warn)
+		draw_rect(Rect2(rect.position.x, rect.end.y - 6, rect.size.x, 6), warn)
+		draw_rect(Rect2(rect.position.x, rect.position.y, 6, rect.size.y), warn)
+		draw_rect(Rect2(rect.end.x - 6, rect.position.y, 6, rect.size.y), warn)
+		# Bright corner accents
+		var ca = border_a * 0.7
+		var cc = Color(1.0, 0.7, 0.2, ca)
+		for corner in [
+			Vector2(rect.position.x, rect.position.y),
+			Vector2(rect.end.x - 14, rect.position.y),
+			Vector2(rect.position.x, rect.end.y - 14),
+			Vector2(rect.end.x - 14, rect.end.y - 14),
+		]:
+			draw_rect(Rect2(corner.x, corner.y, 14, 2), cc)
+			draw_rect(Rect2(corner.x, corner.y, 2, 14), cc)
+		# Center indicator when fully empty
 		if stock[sid] == 0:
 			var c = rect.get_center()
-			var dot_alpha = 0.5 + 0.35 * pulse_val
-			draw_circle(c, 16, Color(1.0, 0.45, 0.1, dot_alpha * 0.4))
-			draw_circle(c, 10, Color(1.0, 0.6, 0.2, dot_alpha))
+			var da = 0.6 + 0.3 * pulse_val
+			# Expanding ring
+			var ring_r = 20.0 + 8.0 * pulse_val
+			draw_arc(c, ring_r, 0, TAU, 16, Color(1.0, 0.5, 0.1, da * 0.3), 2.5)
+			# Glow discs
+			draw_circle(c, 22, Color(1.0, 0.45, 0.1, da * 0.2))
+			draw_circle(c, 14, Color(1.0, 0.6, 0.2, da * 0.45))
+			draw_circle(c, 8, Color(1.0, 0.75, 0.3, da))
+			# "TAP!" text
+			if font:
+				var fsize = 24
+				var tap_text = "TAP!"
+				var tw = font.get_string_size(tap_text, HORIZONTAL_ALIGNMENT_CENTER, -1, fsize)
+				var tx = c.x - tw.x / 2
+				var ty = c.y + 6
+				for ox in [-1, 0, 1]:
+					for oy in [-1, 0, 1]:
+						if ox != 0 or oy != 0:
+							draw_string(font, Vector2(tx + ox, ty + oy), tap_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, Color(0, 0, 0, da * 0.8))
+				draw_string(font, Vector2(tx, ty), tap_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, Color(1.0, 0.9, 0.3, da))

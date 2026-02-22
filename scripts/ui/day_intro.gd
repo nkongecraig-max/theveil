@@ -142,21 +142,69 @@ func has_hint(hint_id: String) -> bool:
 func _create_hint_bubble(text: String, pos: Vector2, arrow_dir: String) -> Control:
 	var container = Control.new()
 	container.position = pos
-	container.size = Vector2(280, 60)
+	container.size = Vector2(300, 72)
 	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	# Shadow layer
+	var shadow = ColorRect.new()
+	shadow.position = Vector2(4, 4)
+	shadow.size = Vector2(300, 72)
+	shadow.color = Color(0, 0, 0, 0.35)
+	shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.add_child(shadow)
 
 	# Background panel
 	var bg = ColorRect.new()
 	bg.position = Vector2(0, 0)
-	bg.size = Vector2(280, 60)
-	bg.color = Color(0.12, 0.1, 0.15, 0.9)
+	bg.size = Vector2(300, 72)
+	bg.color = Color(0.1, 0.08, 0.14, 0.93)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	container.add_child(bg)
 
-	# Accent border top
+	# Top highlight strip
+	var top_hl = ColorRect.new()
+	top_hl.position = Vector2(0, 0)
+	top_hl.size = Vector2(300, 1)
+	top_hl.color = Color(1, 1, 1, 0.1)
+	top_hl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.add_child(top_hl)
+
+	# Colored icon panel on left — varies by hint type
+	var icon_color: Color
+	var icon_char: String
+	match arrow_dir:
+		"down":
+			icon_color = Color(0.2, 0.55, 0.9, 0.35)
+			icon_char = "?"
+		"up":
+			icon_color = Color(0.9, 0.55, 0.15, 0.35)
+			icon_char = "!"
+		_:
+			icon_color = Color(0.3, 0.75, 0.4, 0.35)
+			icon_char = "*"
+	var icon_bg = ColorRect.new()
+	icon_bg.position = Vector2(0, 0)
+	icon_bg.size = Vector2(48, 72)
+	icon_bg.color = icon_color
+	icon_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.add_child(icon_bg)
+
+	# Icon symbol
+	var icon = Label.new()
+	icon.text = icon_char
+	icon.add_theme_font_size_override("font_size", 30)
+	icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	icon.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	icon.position = Vector2(4, 10)
+	icon.size = Vector2(40, 52)
+	icon.modulate = Color(1.0, 0.95, 0.85)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.add_child(icon)
+
+	# Gold accent bar (bottom)
 	var accent = ColorRect.new()
-	accent.position = Vector2(0, 0)
-	accent.size = Vector2(280, 3)
+	accent.position = Vector2(0, 68)
+	accent.size = Vector2(300, 4)
 	accent.color = Color(1.0, 0.75, 0.2)
 	accent.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	container.add_child(accent)
@@ -165,39 +213,54 @@ func _create_hint_bubble(text: String, pos: Vector2, arrow_dir: String) -> Contr
 	var label = Label.new()
 	label.text = text
 	label.add_theme_font_size_override("font_size", 22)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.position = Vector2(10, 8)
-	label.size = Vector2(260, 44)
+	label.position = Vector2(56, 8)
+	label.size = Vector2(234, 56)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD
-	label.modulate = Color(1.0, 0.95, 0.8)
+	label.modulate = Color(1.0, 0.96, 0.88)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	container.add_child(label)
 
-	# Arrow indicator
-	var arrow = Label.new()
-	arrow.add_theme_font_size_override("font_size", 28)
-	arrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	arrow.modulate = Color(1.0, 0.75, 0.2)
+	# Arrow pointer — triangular (stacked rects)
+	var arrow_color = Color(1.0, 0.75, 0.2)
 	match arrow_dir:
 		"down":
-			arrow.text = "v"
-			arrow.position = Vector2(120, 58)
-			arrow.size = Vector2(40, 30)
+			for i in 4:
+				var aw = 20 - i * 5
+				var ar = ColorRect.new()
+				ar.position = Vector2(150 - aw / 2, 70 + i * 4)
+				ar.size = Vector2(aw, 4)
+				ar.color = arrow_color
+				ar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				container.add_child(ar)
 		"up":
-			arrow.text = "^"
-			arrow.position = Vector2(120, -28)
-			arrow.size = Vector2(40, 30)
+			for i in 4:
+				var aw = 20 - i * 5
+				var ar = ColorRect.new()
+				ar.position = Vector2(150 - aw / 2, -4 - i * 4)
+				ar.size = Vector2(aw, 4)
+				ar.color = arrow_color
+				ar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				container.add_child(ar)
 		"left":
-			arrow.text = "<"
-			arrow.position = Vector2(-20, 15)
-			arrow.size = Vector2(30, 30)
+			for i in 4:
+				var ah = 18 - i * 4
+				var ar = ColorRect.new()
+				ar.position = Vector2(-4 - i * 4, 36 - ah / 2)
+				ar.size = Vector2(4, ah)
+				ar.color = arrow_color
+				ar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				container.add_child(ar)
 		"right":
-			arrow.text = ">"
-			arrow.position = Vector2(278, 15)
-			arrow.size = Vector2(30, 30)
-	container.add_child(arrow)
+			for i in 4:
+				var ah = 18 - i * 4
+				var ar = ColorRect.new()
+				ar.position = Vector2(300 + i * 4, 36 - ah / 2)
+				ar.size = Vector2(4, ah)
+				ar.color = arrow_color
+				ar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				container.add_child(ar)
 
 	return container
 

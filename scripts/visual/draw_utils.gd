@@ -49,6 +49,57 @@ static func draw_stone_floor(canvas: CanvasItem, rect: Rect2, base_color: Color,
 				var th = minf(tile_size - 2, rect.position.y + rect.size.y - ty)
 				canvas.draw_rect(Rect2(tx, ty, tw, th), color)
 
+# -- Warm parquet floor (alternating grain groups — basket-weave look) --
+static func draw_parquet_floor(canvas: CanvasItem, rect: Rect2, base_color: Color, group_size: float = 48.0) -> void:
+	var rng = RandomNumberGenerator.new()
+	rng.seed = 42
+	var plank_count := 3
+	var gap := 1.0
+	var cols = int(rect.size.x / group_size) + 1
+	var rows = int(rect.size.y / group_size) + 1
+	# Dark gap color underneath
+	canvas.draw_rect(rect, base_color.darkened(0.15))
+	for r in rows:
+		for c in cols:
+			var gx = rect.position.x + c * group_size
+			var gy = rect.position.y + r * group_size
+			var horizontal = (r + c) % 2 == 0
+			for p in plank_count:
+				var shade = rng.randf_range(-0.05, 0.05)
+				var warm = rng.randf_range(-0.01, 0.025)
+				var color = Color(
+					base_color.r + shade + warm,
+					base_color.g + shade,
+					base_color.b + shade - warm * 0.5
+				)
+				if horizontal:
+					var py = gy + p * (group_size / plank_count)
+					var pw = minf(group_size - gap, rect.end.x - gx)
+					var ph = (group_size / plank_count) - gap
+					ph = minf(ph, rect.end.y - py)
+					if pw > 0 and ph > 0:
+						canvas.draw_rect(Rect2(gx, py, pw, ph), color)
+						canvas.draw_line(Vector2(gx + 3, py + ph * 0.35), Vector2(gx + pw - 3, py + ph * 0.35), Color(color.r - 0.03, color.g - 0.02, color.b - 0.01, 0.3), 1.0)
+						canvas.draw_line(Vector2(gx + 8, py + ph * 0.7), Vector2(gx + pw - 8, py + ph * 0.7), Color(color.r - 0.02, color.g - 0.02, color.b - 0.01, 0.2), 1.0)
+				else:
+					var px = gx + p * (group_size / plank_count)
+					var pw = (group_size / plank_count) - gap
+					pw = minf(pw, rect.end.x - px)
+					var ph = minf(group_size - gap, rect.end.y - gy)
+					if pw > 0 and ph > 0:
+						canvas.draw_rect(Rect2(px, gy, pw, ph), color)
+						canvas.draw_line(Vector2(px + pw * 0.35, gy + 3), Vector2(px + pw * 0.35, gy + ph - 3), Color(color.r - 0.03, color.g - 0.02, color.b - 0.01, 0.3), 1.0)
+						canvas.draw_line(Vector2(px + pw * 0.7, gy + 8), Vector2(px + pw * 0.7, gy + ph - 8), Color(color.r - 0.02, color.g - 0.02, color.b - 0.01, 0.2), 1.0)
+	# Subtle boundary lines between groups
+	for r in rows + 1:
+		var ly = rect.position.y + r * group_size
+		if ly > rect.position.y and ly < rect.end.y:
+			canvas.draw_line(Vector2(rect.position.x, ly), Vector2(rect.end.x, ly), Color(0, 0, 0, 0.06), 1.0)
+	for c in cols + 1:
+		var lx = rect.position.x + c * group_size
+		if lx > rect.position.x and lx < rect.end.x:
+			canvas.draw_line(Vector2(lx, rect.position.y), Vector2(lx, rect.end.y), Color(0, 0, 0, 0.06), 1.0)
+
 # -- Brick/wall pattern --
 static func draw_brick_wall(canvas: CanvasItem, rect: Rect2, base_color: Color, brick_w: float = 40.0, brick_h: float = 20.0) -> void:
 	var rng = RandomNumberGenerator.new()
