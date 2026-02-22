@@ -18,7 +18,9 @@ extends Node2D
 var day_night: CanvasModulate = null
 var tap_juice: Node2D = null
 var shelf_stock: Node2D = null
+var day_intro: Control = null
 var coins_earned_today: int = 0
+var _intro_playing: bool = false
 
 # Shelf data
 var shelf_items: Dictionary = {
@@ -65,11 +67,17 @@ func _ready() -> void:
 	customer_manager.day_progress.connect(_on_day_progress)
 	Analytics.track_event("scene_entered", {"scene": "shop"})
 	_restore_visual_upgrades()
+	# Hide static tap hint — replaced by contextual Day 1 hints
+	var old_hint = $UI.get_node_or_null("TapHint")
+	if old_hint:
+		old_hint.visible = false
 	print("[Shop] Welcome to your shop. Day %d." % GameManager.current_day)
-	customer_manager.start_day()
+	_start_day_with_intro()
 
 func _input(event: InputEvent) -> void:
-	# Don't process taps if a panel is open
+	# Don't process taps during intro or if a panel is open
+	if _intro_playing:
+		return
 	if inventory_panel.is_open or sorting_puzzle.visible or recipe_puzzle.visible or memory_puzzle.visible or upgrade_shop.is_open:
 		return
 
@@ -83,6 +91,7 @@ func _input(event: InputEvent) -> void:
 
 	# Priority 1: Did they tap the counter? (and is player close enough?)
 	if counter_zone.has_point(tap_pos):
+		_dismiss_tutorial_hint_for_action("counter")
 		if tap_juice:
 			tap_juice.spawn_tap(tap_pos, Color(0.9, 0.75, 0.4))
 		var dist = player.global_position.distance_to(counter_zone.get_center())
@@ -119,6 +128,7 @@ func _input(event: InputEvent) -> void:
 			return
 
 	# Priority 3: Nothing special tapped — just walk there
+	_dismiss_tutorial_hint_for_action("walk")
 	if tap_juice:
 		tap_juice.spawn_tap(tap_pos, Color(1.0, 1.0, 1.0, 0.4))
 	player.move_to(tap_pos)
@@ -152,6 +162,13 @@ func _on_puzzle_completed(_puzzle_id: String, _time_taken: float, _moves: int) -
 	sorting_puzzle.visible = false
 	recipe_puzzle.visible = false
 	memory_puzzle.visible = false
+	# After first puzzle on Day 1 — show shelf restock hint
+	if GameManager.current_day == 1 and day_intro and not day_intro.has_hint("shelf"):
+		var t = get_tree().create_timer(2.0)
+		t.timeout.connect(func():
+			if day_intro:
+				day_intro.show_hint("shelf", "Tap glowing shelves to restock", Vector2(30, 160), "down")
+		)
 
 func _on_puzzle_closed() -> void:
 	pass
@@ -179,6 +196,7 @@ func _on_stock_changed(_shelf_id: String, _level: int) -> void:
 
 func _on_restock_complete(_shelf_id: String) -> void:
 	_update_hud()
+	_dismiss_tutorial_hint_for_action("shelf")
 	Analytics.track_event("shelf_restocked", {"shelf_id": _shelf_id})
 
 func _on_day_progress(progress: float) -> void:
@@ -186,6 +204,46 @@ func _on_day_progress(progress: float) -> void:
 		day_night.set_progress(progress)
 	if progress == 0.0:
 		coins_earned_today = 0
+
+func _start_day_with_intro() -> void:
+	_intro_playing = true
+	if day_intro:
+		day_intro.intro_finished.connect(_on_intro_finished, CONNECT_ONE_SHOT)
+		day_intro.show_day_intro(GameManager.current_day)
+	else:
+		_on_intro_finished()
+
+func _on_intro_finished() -> void:
+	_intro_playing = false
+	# Start the day with a brief delay before first customer
+	customer_manager.start_day_delayed(3.0 if GameManager.current_day == 1 else 1.5)
+	# Show Day 1 tutorial hints
+	if GameManager.current_day == 1 and day_intro:
+		_show_tutorial_hints()
+
+func _show_tutorial_hints() -> void:
+	# Show "walk around" hint first
+	day_intro.show_hint("walk", "Tap anywhere to walk around", Vector2(220, 700), "down")
+	# Counter hint after small delay
+	var t1 = get_tree().create_timer(4.0)
+	t1.timeout.connect(func():
+		if day_intro and not day_intro.has_hint("counter"):
+			day_intro.dismiss_hint("walk")
+			day_intro.show_hint("counter", "Tap the counter to serve customers", Vector2(170, 810), "down")
+	)
+
+func _dismiss_tutorial_hint_for_action(action: String) -> void:
+	if not day_intro:
+		return
+	match action:
+		"walk":
+			day_intro.dismiss_hint("walk")
+		"counter":
+			day_intro.dismiss_hint("counter")
+		"shelf":
+			day_intro.dismiss_hint("shelf")
+		"restock":
+			day_intro.dismiss_hint("restock")
 
 func _on_day_complete() -> void:
 	print("[Shop] All customers served! Day %d complete." % GameManager.current_day)
@@ -272,7 +330,9 @@ func _close_day_summary(summary: Control) -> void:
 			day_night.snap_to_morning()
 		if shelf_stock:
 			shelf_stock.reset_all()
-		customer_manager.start_day()
+		if day_intro:
+			day_intro.dismiss_all_hints()
+		_start_day_with_intro()
 	)
 
 func _setup_visuals() -> void:
@@ -331,6 +391,13 @@ func _setup_visuals() -> void:
 	if shelf_stock:
 		shelf_stock.stock_changed.connect(_on_stock_changed)
 		shelf_stock.restock_complete.connect(_on_restock_complete)
+	# Day intro overlay (lives in UI CanvasLayer)
+	day_intro = Control.new()
+	day_intro.name = "DayIntro"
+	day_intro.anchors_preset = Control.PRESET_FULL_RECT
+	day_intro.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	day_intro.set_script(load("res://scripts/ui/day_intro.gd"))
+	$UI.add_child(day_intro)
 
 func _setup_collisions() -> void:
 	var player_shape = RectangleShape2D.new()

@@ -104,6 +104,13 @@ func start_day() -> void:
 	day_progress.emit(0.0)
 	_spawn_next_customer()
 
+func start_day_delayed(delay: float) -> void:
+	customers_served_today = 0
+	_streak = 0
+	day_progress.emit(0.0)
+	var timer = shop_node.get_tree().create_timer(delay)
+	timer.timeout.connect(_spawn_next_customer)
+
 func get_streak() -> int:
 	return _streak
 
