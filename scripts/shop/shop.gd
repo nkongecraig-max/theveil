@@ -17,6 +17,7 @@ extends Node2D
 
 var day_night: CanvasModulate = null
 var tap_juice: Node2D = null
+var shelf_stock: Node2D = null
 var coins_earned_today: int = 0
 
 # Shelf data
@@ -96,13 +97,23 @@ func _input(event: InputEvent) -> void:
 	for shelf_id in shelf_zones:
 		var zone: Rect2 = shelf_zones[shelf_id]
 		if zone.has_point(tap_pos):
-			if tap_juice:
-				tap_juice.spawn_tap(tap_pos, Color(0.6, 0.9, 0.5))
 			var dist = player.global_position.distance_to(zone.get_center())
 			if dist < INTERACT_DISTANCE:
-				inventory_panel.open_panel(shelf_id, shelf_items[shelf_id])
-				return
+				# If shelf needs restocking, restock it; otherwise open inventory
+				if shelf_stock and shelf_stock.is_depleted(shelf_id):
+					if shelf_stock.restock(shelf_id):
+						if tap_juice:
+							tap_juice.spawn_tap(tap_pos, Color(0.3, 1.0, 0.5))
+						print("[Shop] Restocked %s!" % shelf_id)
+					return
+				else:
+					if tap_juice:
+						tap_juice.spawn_tap(tap_pos, Color(0.6, 0.9, 0.5))
+					inventory_panel.open_panel(shelf_id, shelf_items[shelf_id])
+					return
 			# Not close enough — walk toward shelf
+			if tap_juice:
+				tap_juice.spawn_tap(tap_pos, Color(0.6, 0.9, 0.5))
 			player.move_to(zone.get_center() + Vector2(0, 120))
 			return
 
@@ -146,9 +157,19 @@ func _on_puzzle_closed() -> void:
 
 func _on_order_filled(reward: int) -> void:
 	coins_earned_today += reward
+	# Deplete 1-2 shelves per order served
+	if shelf_stock:
+		shelf_stock.deplete_random(randi_range(1, 2))
 	if tap_juice:
 		tap_juice.spawn_coin_pop(Vector2(360, 900))
 	print("[Shop] Order filled! Earned %d coins." % reward)
+
+func _on_stock_changed(_shelf_id: String, _level: int) -> void:
+	_update_hud()
+
+func _on_restock_complete(_shelf_id: String) -> void:
+	_update_hud()
+	Analytics.track_event("shelf_restocked", {"shelf_id": _shelf_id})
 
 func _on_day_progress(progress: float) -> void:
 	if day_night:
@@ -239,6 +260,8 @@ func _close_day_summary(summary: Control) -> void:
 		# Reset to morning and start new day
 		if day_night:
 			day_night.snap_to_morning()
+		if shelf_stock:
+			shelf_stock.reset_all()
 		customer_manager.start_day()
 	)
 
@@ -282,12 +305,22 @@ func _setup_visuals() -> void:
 	day_night.name = "DayNightCycle"
 	day_night.set_script(load("res://scripts/visual/day_night_cycle.gd"))
 	add_child(day_night)
+	# Shelf stock tracking + visual overlay (above shop visuals, below player)
+	shelf_stock = Node2D.new()
+	shelf_stock.name = "ShelfStock"
+	shelf_stock.z_index = -2
+	shelf_stock.set_script(load("res://scripts/shop/shelf_stock.gd"))
+	add_child(shelf_stock)
 	# Tap feedback effects (draws on top of everything in game world)
 	tap_juice = Node2D.new()
 	tap_juice.name = "TapJuice"
 	tap_juice.z_index = 50
 	tap_juice.set_script(load("res://scripts/visual/tap_juice.gd"))
 	add_child(tap_juice)
+	# Connect shelf_stock signals (after node is created)
+	if shelf_stock:
+		shelf_stock.stock_changed.connect(_on_stock_changed)
+		shelf_stock.restock_complete.connect(_on_restock_complete)
 
 func _setup_collisions() -> void:
 	var player_shape = RectangleShape2D.new()
@@ -396,4 +429,10 @@ func _restore_visual_upgrades() -> void:
 
 func _update_hud() -> void:
 	day_label.text = "Day %d  Lv %d" % [GameManager.current_day, GameManager.player_level]
-	coins_label.text = "%d coins" % GameManager.player_coins
+	var stock_text := ""
+	if shelf_stock:
+		var ratio = shelf_stock.get_stock_ratio()
+		if ratio < 1.0:
+			var pct = int(ratio * 100)
+			stock_text = "  |  Stock %d%%" % pct
+	coins_label.text = "%d coins%s" % [GameManager.player_coins, stock_text]

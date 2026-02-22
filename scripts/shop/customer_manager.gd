@@ -160,6 +160,9 @@ func _on_order_completed(_customer: CharacterBody2D, reward: int) -> void:
 	if _current_data.get("puzzle_type", "") == "recipe":
 		total_reward += UpgradeShop.get_recipe_bonus()
 	total_reward = int(total_reward * UpgradeShop.get_reward_multiplier())
+	# Stock level multiplier — full shelves = full reward, empty = half
+	if shop_node and shop_node.shelf_stock:
+		total_reward = int(total_reward * shop_node.shelf_stock.get_reward_multiplier())
 	GameManager.add_coins(total_reward)
 	order_filled.emit(total_reward)
 
