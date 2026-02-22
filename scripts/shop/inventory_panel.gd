@@ -18,6 +18,26 @@ func _ready() -> void:
 	visible = false
 	close_btn.pressed.connect(close_panel)
 	_load_item_database()
+	# Fix layout: force ScrollContainer to use anchors so it scales with panel
+	var scroll = $PanelBG/ScrollContainer
+	scroll.layout_mode = 1
+	scroll.anchor_left = 0.0
+	scroll.anchor_top = 0.0
+	scroll.anchor_right = 1.0
+	scroll.anchor_bottom = 1.0
+	scroll.offset_left = 10
+	scroll.offset_top = 60
+	scroll.offset_right = -10
+	scroll.offset_bottom = -10
+	scroll.clip_contents = true
+	# Fix CloseBtn position with anchors
+	close_btn.layout_mode = 1
+	close_btn.anchor_left = 1.0
+	close_btn.anchor_right = 1.0
+	close_btn.offset_left = -120
+	close_btn.offset_top = 6
+	close_btn.offset_right = -10
+	close_btn.offset_bottom = 54
 
 func _load_item_database() -> void:
 	var file = FileAccess.open("res://data/items/starter_items.json", FileAccess.READ)
@@ -59,41 +79,64 @@ func close_panel() -> void:
 
 func _add_item_card(item: Dictionary) -> void:
 	var card = PanelContainer.new()
-	card.custom_minimum_size = Vector2(0, 100)
+	card.custom_minimum_size = Vector2(0, 90)
+	card.clip_contents = true
+
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_top", 6)
+	margin.add_theme_constant_override("margin_bottom", 6)
 
 	var hbox = HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 12)
+	hbox.add_theme_constant_override("separation", 10)
 
-	# Color swatch
+	# Color swatch with border
+	var swatch_wrap = Control.new()
+	swatch_wrap.custom_minimum_size = Vector2(56, 56)
+	var swatch_border = ColorRect.new()
+	swatch_border.position = Vector2(0, 0)
+	swatch_border.size = Vector2(56, 56)
+	swatch_border.color = Color(0.2, 0.15, 0.1)
+	swatch_wrap.add_child(swatch_border)
 	var swatch = ColorRect.new()
-	swatch.custom_minimum_size = Vector2(60, 60)
+	swatch.position = Vector2(2, 2)
+	swatch.size = Vector2(52, 52)
 	swatch.color = Color(item["color"][0], item["color"][1], item["color"][2])
-	hbox.add_child(swatch)
+	swatch_wrap.add_child(swatch)
+	hbox.add_child(swatch_wrap)
 
-	# Info
+	# Info column
 	var vbox = VBoxContainer.new()
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 2)
 
 	var name_label = Label.new()
 	name_label.text = item["name"]
+	name_label.add_theme_font_size_override("font_size", 28)
 	vbox.add_child(name_label)
 
 	var desc_label = Label.new()
 	desc_label.text = item["description"]
-	desc_label.add_theme_font_size_override("font_size", 22)
-	desc_label.modulate.a = 0.7
+	desc_label.add_theme_font_size_override("font_size", 20)
+	desc_label.modulate.a = 0.6
+	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	desc_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.add_child(desc_label)
 
 	hbox.add_child(vbox)
 
-	# Price
+	# Price — bold, right-aligned
 	var price_label = Label.new()
 	price_label.text = "%d c" % item["price"]
+	price_label.add_theme_font_size_override("font_size", 28)
 	price_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	price_label.custom_minimum_size = Vector2(50, 0)
+	price_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	price_label.custom_minimum_size = Vector2(60, 0)
 	hbox.add_child(price_label)
 
-	card.add_child(hbox)
+	margin.add_child(hbox)
+	card.add_child(margin)
 
 	# Make tappable
 	var btn = Button.new()

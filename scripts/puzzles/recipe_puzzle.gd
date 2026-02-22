@@ -163,7 +163,7 @@ func _build_ingredients() -> void:
 		btn.custom_minimum_size = Vector2(120, 80)
 		btn.text = ingredient_names.get(ing_id, ing_id)
 
-		var color = ingredient_colors.get(ing_id, Color.WHITE)
+		var color = ingredient_colors.get(ing_id, Color.WHITE).lightened(0.25)
 		var stylebox = StyleBoxFlat.new()
 		stylebox.bg_color = color
 		stylebox.corner_radius_top_left = 10
@@ -174,21 +174,19 @@ func _build_ingredients() -> void:
 		stylebox.content_margin_right = 8.0
 		stylebox.content_margin_top = 8.0
 		stylebox.content_margin_bottom = 8.0
+		stylebox.border_width_left = 2
+		stylebox.border_width_right = 2
+		stylebox.border_width_top = 2
+		stylebox.border_width_bottom = 2
+		stylebox.border_color = color.darkened(0.35)
 
 		var pressed_style = stylebox.duplicate()
-		pressed_style.bg_color = color.darkened(0.2)
-
-		# Selected state -- bright outline
-		var selected_style = stylebox.duplicate()
-		selected_style.border_width_left = 3
-		selected_style.border_width_right = 3
-		selected_style.border_width_top = 3
-		selected_style.border_width_bottom = 3
-		selected_style.border_color = Color.WHITE
+		pressed_style.bg_color = color.darkened(0.15)
 
 		btn.add_theme_stylebox_override("normal", stylebox)
 		btn.add_theme_stylebox_override("hover", stylebox)
 		btn.add_theme_stylebox_override("pressed", pressed_style)
+		btn.add_theme_color_override("font_color", Color.WHITE if color.get_luminance() < 0.5 else Color(0.15, 0.1, 0.08))
 
 		var captured_id = ing_id
 		var captured_btn = btn

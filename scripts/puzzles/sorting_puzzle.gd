@@ -118,7 +118,7 @@ func _build_items() -> void:
 		var btn = Button.new()
 		btn.custom_minimum_size = Vector2(120, 80)
 		btn.text = item_names.get(item_id, item_id)
-		var color = item_colors.get(item_id, Color.WHITE)
+		var color = item_colors.get(item_id, Color.WHITE).lightened(0.25)
 		var stylebox = StyleBoxFlat.new()
 		stylebox.bg_color = color
 		stylebox.corner_radius_top_left = 10
@@ -129,12 +129,17 @@ func _build_items() -> void:
 		stylebox.content_margin_right = 8.0
 		stylebox.content_margin_top = 8.0
 		stylebox.content_margin_bottom = 8.0
-		# Pressed state slightly darker
+		stylebox.border_width_left = 2
+		stylebox.border_width_right = 2
+		stylebox.border_width_top = 2
+		stylebox.border_width_bottom = 2
+		stylebox.border_color = color.darkened(0.35)
 		var pressed_style = stylebox.duplicate()
-		pressed_style.bg_color = color.darkened(0.2)
+		pressed_style.bg_color = color.darkened(0.15)
 		btn.add_theme_stylebox_override("normal", stylebox)
 		btn.add_theme_stylebox_override("hover", stylebox)
 		btn.add_theme_stylebox_override("pressed", pressed_style)
+		btn.add_theme_color_override("font_color", Color.WHITE if color.get_luminance() < 0.5 else Color(0.15, 0.1, 0.08))
 		var captured_id = item_id
 		btn.pressed.connect(func(): _on_item_picked(captured_id))
 		items_container.add_child(btn)
