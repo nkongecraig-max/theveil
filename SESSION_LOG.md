@@ -64,3 +64,47 @@
 **Next up:** Third puzzle type, playtesting, shop upgrades (spend coins on something)
 **Blockers:** None
 **Content generated:** Two puzzle types working, full economy loop, save/load functional
+
+---
+
+## Session 3 | 2026-02-21/22 | Complete (Sprint)
+**Focus:** Visual overhaul, character fixes, level progression, V1 readiness, web deploy
+**Done:**
+- Fixed startup crash (set_parallel on PropertyTweener → moved to Tween correctly)
+- Visual overhaul: parquet herringbone floor, shelf personality (different wood tones, trim), warm glow effects, styled UI panels
+- Fixed HUD/inventory overlap (added panel_closed signal, _set_hud_visible toggle)
+- Changed hint icons to 🥷 ninja emoji throughout day_intro.gd
+- Fixed hint overlay on puzzles (hints hide during puzzle, reappear after)
+- Made characters 1.5x larger (Node2D scale) so names fit on clothing
+- Added name drawing on customer shirts and "SHOP" text on player apron
+- Removed iron L-bracket shapes from shelves (looked like parentheses at mobile size)
+- Built complete level-driven visual progression system:
+  - shop_visuals.gd: base→premium color palette lerp, 9 milestone decorations (plant, clock, rugs, sconces, curtains, flowers, crown molding)
+  - player_visual.gd: outfit evolves (SHOP→PRO→MASTER text, badge pin, gold trim, collar detail, golden aura at level 10)
+  - Connected to game_state_changed("player_level") signal
+- V1 readiness batch:
+  - AudioManager autoload: procedural SFX (9 types) + warm ambient drone, no external files
+  - Daily rewards system: streak-based 5-25 coins, calendar date tracking
+  - Best-day stats tracking (coins, customers served)
+  - Pause handling: auto-save on app background, tree pause/resume
+  - Splash screen: animated title card → save load → ambient start → game
+  - Day summary enhanced with best-day records + tomorrow tease
+  - Customer patience bar accessibility (colorblind patterns: stripes critical, dots medium)
+  - Created docs/ pages: landing page, privacy policy, support FAQ
+  - Updated project.godot with AudioManager autoload + splash screen as main scene
+- GitHub deployment:
+  - Pushed codebase to github.com/nkongecraig-max/theveil
+  - Exported Godot web build (HTML5, no-threads) to docs/game/
+  - Made repo public, enabled GitHub Pages from docs/
+  - Live at: https://nkongecraig-max.github.io/theveil/
+  - Game playable at: https://nkongecraig-max.github.io/theveil/game/
+
+**Commits:**
+- 0bc5ca5 — Fix startup crash (set_parallel on PropertyTweener)
+- deee699 — Visual overhaul (parquet floor, shelf personality, glow effects, styled UI)
+- e2b32aa — V1 readiness: audio, progression, polish, accessibility, splash screen
+- d550622 — Add web build for Caia testing via GitHub Pages
+
+**Next up:** Get Caia's feedback from web build, iterate on issues she finds, third puzzle type (memory), upgrade shop
+**Blockers:** None
+**Content generated:** Full web-playable demo, GitHub Pages site with privacy policy + support
