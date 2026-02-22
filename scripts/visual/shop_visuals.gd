@@ -90,52 +90,114 @@ func _draw() -> void:
 		draw_rect(Rect2(678 - i * 2, 0, i * 2, 1280), Color(0, 0, 0, alpha * 0.5))  # right
 
 func _draw_shelf_unit(pos: Vector2, size: Vector2) -> void:
+	# Outer glow — signals interactivity
+	draw_rect(Rect2(pos.x - 6, pos.y - 8, size.x + 12, size.y + 14), Color(1.0, 0.9, 0.6, 0.08))
+	draw_rect(Rect2(pos.x - 3, pos.y - 5, size.x + 6, size.y + 8), Color(1.0, 0.9, 0.6, 0.06))
 	# Shadow
-	draw_rect(Rect2(pos.x + 4, pos.y + 4, size.x, size.y), Color(0, 0, 0, 0.12))
-	# Back panel
-	draw_rect(Rect2(pos, size), shelf_wood.darkened(0.15))
-	# Shelf boards
+	draw_rect(Rect2(pos.x + 5, pos.y + 5, size.x, size.y), Color(0, 0, 0, 0.18))
+	# Back panel — darker for contrast
+	draw_rect(Rect2(pos, size), shelf_wood.darkened(0.22))
+	# Inner panel lighter area for depth
+	draw_rect(Rect2(pos.x + 6, pos.y + 4, size.x - 12, size.y - 4), shelf_wood.darkened(0.12))
+	# Shelf boards — thicker, more prominent
 	var shelf_count = 3
 	for i in shelf_count:
 		var sy = pos.y + (i + 1) * (size.y / (shelf_count + 1))
-		DU.draw_wood_planks(self, Rect2(pos.x, sy - 3, size.x, 7), shelf_wood, 3, true)
-	# Side trim
-	draw_rect(Rect2(pos.x, pos.y, 5, size.y), shelf_wood.darkened(0.08))
-	draw_rect(Rect2(pos.x + size.x - 5, pos.y, 5, size.y), shelf_wood.darkened(0.08))
-	# Top crown
-	draw_rect(Rect2(pos.x - 3, pos.y - 5, size.x + 6, 7), shelf_wood)
-	draw_rect(Rect2(pos.x - 3, pos.y - 5, size.x + 6, 2), Color(1, 1, 1, 0.1))
-	# Items on shelves (colored circles as goods)
+		DU.draw_wood_planks(self, Rect2(pos.x, sy - 5, size.x, 10), shelf_wood, 3, true)
+		# Board edge highlight
+		draw_rect(Rect2(pos.x + 2, sy - 5, size.x - 4, 2), Color(1, 1, 1, 0.12))
+		# Board bottom shadow
+		draw_rect(Rect2(pos.x + 2, sy + 3, size.x - 4, 2), Color(0, 0, 0, 0.1))
+	# Side trim — thicker, beveled look
+	draw_rect(Rect2(pos.x, pos.y, 7, size.y), shelf_wood.darkened(0.1))
+	draw_rect(Rect2(pos.x, pos.y, 2, size.y), Color(1, 1, 1, 0.08))
+	draw_rect(Rect2(pos.x + size.x - 7, pos.y, 7, size.y), shelf_wood.darkened(0.1))
+	draw_rect(Rect2(pos.x + size.x - 2, pos.y, 2, size.y), Color(0, 0, 0, 0.08))
+	# Top crown — more ornate
+	draw_rect(Rect2(pos.x - 5, pos.y - 8, size.x + 10, 10), shelf_wood.lightened(0.05))
+	draw_rect(Rect2(pos.x - 5, pos.y - 8, size.x + 10, 2), Color(1, 1, 1, 0.15))
+	draw_rect(Rect2(pos.x - 3, pos.y - 3, size.x + 6, 2), trim_color.darkened(0.1))
+	# Bold outer border
+	draw_rect(Rect2(pos.x - 1, pos.y - 1, size.x + 2, 1), Color(0.15, 0.1, 0.05))
+	draw_rect(Rect2(pos.x - 1, pos.y + size.y, size.x + 2, 1), Color(0.15, 0.1, 0.05))
+	draw_rect(Rect2(pos.x - 1, pos.y, 1, size.y), Color(0.15, 0.1, 0.05))
+	draw_rect(Rect2(pos.x + size.x, pos.y, 1, size.y), Color(0.15, 0.1, 0.05))
+	# Items on shelves — BIGGER, bolder, distinct shapes
 	var rng = RandomNumberGenerator.new()
 	rng.seed = int(pos.x * 7 + pos.y)
-	var item_colors = [Color(0.9, 0.72, 0.3), Color(0.3, 0.65, 0.28), Color(0.95, 0.85, 0.35), Color(0.7, 0.45, 0.8), Color(0.78, 0.5, 0.3)]
+	var item_colors = [
+		Color(0.95, 0.7, 0.2),   # Gold jar
+		Color(0.25, 0.7, 0.3),   # Green bottle
+		Color(0.95, 0.35, 0.3),  # Red potion
+		Color(0.55, 0.35, 0.85), # Purple vial
+		Color(0.3, 0.6, 0.9),    # Blue flask
+	]
+	var item_shapes = [0, 1, 2, 0, 1]  # 0=jar, 1=bottle, 2=round flask
 	for i in shelf_count:
-		var sy = pos.y + (i + 1) * (size.y / (shelf_count + 1)) - 14
-		var item_count = rng.randi_range(2, 4)
+		var sy = pos.y + (i + 1) * (size.y / (shelf_count + 1)) - 18
+		var item_count = rng.randi_range(3, 4)
 		var spacing = size.x / (item_count + 1)
 		for j in item_count:
 			var ix = pos.x + (j + 1) * spacing
-			var c = item_colors[rng.randi() % item_colors.size()]
-			# Small jar/bottle shape with outline
-			draw_rect(Rect2(ix - 7, sy - 9, 14, 14), Color(0.2, 0.15, 0.1))
-			draw_rect(Rect2(ix - 6, sy - 8, 12, 12), c)
-			draw_rect(Rect2(ix - 4, sy - 13, 8, 6), Color(0.2, 0.15, 0.1))
-			draw_rect(Rect2(ix - 3, sy - 12, 6, 5), c.lightened(0.15))
-			# Shine
-			draw_rect(Rect2(ix - 4, sy - 6, 2, 4), Color(1, 1, 1, 0.2))
+			var ci = rng.randi() % item_colors.size()
+			var c = item_colors[ci]
+			var shape = item_shapes[ci]
+			if shape == 0:
+				# Wide jar — 20x18 body
+				draw_rect(Rect2(ix - 11, sy - 12, 22, 20), Color(0.12, 0.08, 0.05))
+				draw_rect(Rect2(ix - 10, sy - 11, 20, 18), c)
+				draw_rect(Rect2(ix - 6, sy - 17, 12, 7), Color(0.12, 0.08, 0.05))
+				draw_rect(Rect2(ix - 5, sy - 16, 10, 5), c.lightened(0.2))
+				# Label band
+				draw_rect(Rect2(ix - 8, sy - 4, 16, 5), Color(1, 1, 0.9, 0.5))
+			elif shape == 1:
+				# Tall bottle — 14x22 body
+				draw_rect(Rect2(ix - 8, sy - 16, 16, 24), Color(0.12, 0.08, 0.05))
+				draw_rect(Rect2(ix - 7, sy - 15, 14, 22), c)
+				draw_rect(Rect2(ix - 4, sy - 22, 8, 8), Color(0.12, 0.08, 0.05))
+				draw_rect(Rect2(ix - 3, sy - 21, 6, 6), c.lightened(0.15))
+				# Cork
+				draw_rect(Rect2(ix - 3, sy - 23, 6, 3), Color(0.7, 0.55, 0.35))
+			else:
+				# Round flask — circle body
+				draw_circle(Vector2(ix, sy - 2), 11, Color(0.12, 0.08, 0.05))
+				draw_circle(Vector2(ix, sy - 2), 10, c)
+				draw_rect(Rect2(ix - 3, sy - 16, 6, 10), Color(0.12, 0.08, 0.05))
+				draw_rect(Rect2(ix - 2, sy - 15, 4, 9), c.lightened(0.1))
+				# Stopper
+				draw_rect(Rect2(ix - 4, sy - 18, 8, 4), Color(0.6, 0.5, 0.35))
+			# Shine highlight on all items
+			draw_rect(Rect2(ix - 6, sy - 10, 3, 6), Color(1, 1, 1, 0.25))
+			draw_rect(Rect2(ix - 5, sy - 8, 2, 3), Color(1, 1, 1, 0.15))
 
 func _draw_back_shelf(pos: Vector2, size: Vector2) -> void:
-	draw_rect(Rect2(pos.x + 2, pos.y + 2, size.x, size.y), Color(0, 0, 0, 0.1))
+	# Glow behind for interactivity
+	draw_rect(Rect2(pos.x - 4, pos.y - 4, size.x + 8, size.y + 8), Color(1.0, 0.9, 0.6, 0.07))
+	# Shadow
+	draw_rect(Rect2(pos.x + 3, pos.y + 3, size.x, size.y), Color(0, 0, 0, 0.15))
+	# Shelf board
 	DU.draw_wood_planks(self, Rect2(pos, size), shelf_wood.darkened(0.05), 2, true)
-	draw_rect(Rect2(pos.x, pos.y, size.x, 2), Color(1, 1, 1, 0.1))
-	# Small items
+	# Top highlight
+	draw_rect(Rect2(pos.x, pos.y, size.x, 2), Color(1, 1, 1, 0.14))
+	# Bottom shadow
+	draw_rect(Rect2(pos.x, pos.y + size.y - 2, size.x, 2), Color(0, 0, 0, 0.1))
+	# Border
+	draw_rect(Rect2(pos.x - 1, pos.y - 1, size.x + 2, 1), Color(0.15, 0.1, 0.05))
+	draw_rect(Rect2(pos.x - 1, pos.y + size.y, size.x + 2, 1), Color(0.15, 0.1, 0.05))
+	# Bigger items with distinct shapes
 	var rng = RandomNumberGenerator.new()
 	rng.seed = int(pos.x)
-	var colors = [Color(0.82, 0.68, 0.38), Color(0.6, 0.75, 0.5), Color(0.92, 0.75, 0.4)]
-	for i in 3:
-		var ix = pos.x + 20 + i * 40
+	var colors = [Color(0.92, 0.65, 0.25), Color(0.35, 0.75, 0.4), Color(0.85, 0.35, 0.35), Color(0.45, 0.55, 0.9)]
+	var spacing = size.x / 5
+	for i in 4:
+		var ix = pos.x + spacing * (i + 0.5)
 		var c = colors[i % colors.size()]
-		draw_circle(Vector2(ix, pos.y + size.y * 0.5), 8, c)
+		var cy = pos.y + size.y * 0.35
+		# Item outline + fill — bigger (radius 10)
+		draw_circle(Vector2(ix, cy), 12, Color(0.12, 0.08, 0.05))
+		draw_circle(Vector2(ix, cy), 10, c)
+		# Shine
+		draw_rect(Rect2(ix - 4, cy - 6, 3, 4), Color(1, 1, 1, 0.25))
 
 func _draw_frame(pos: Vector2, size: Vector2) -> void:
 	# Outer frame
