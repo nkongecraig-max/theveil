@@ -21,10 +21,10 @@ var coins_earned_today: int = 0
 
 # Shelf data
 var shelf_items: Dictionary = {
-	"shelf_left": ["bread", "herbs", "tea"],
-	"shelf_right": ["candle", "soap", "pottery"],
-	"shelf_back_left": ["bread", "candle"],
-	"shelf_back_right": ["herbs", "soap"],
+	"shelf_left": ["coffee", "spices", "wine"],
+	"shelf_right": ["tools", "leather", "spirits"],
+	"shelf_back_left": ["coffee", "tools"],
+	"shelf_back_right": ["spices", "leather"],
 }
 
 # Shelf positions and sizes for tap detection

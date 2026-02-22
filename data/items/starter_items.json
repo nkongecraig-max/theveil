@@ -1,52 +1,52 @@
 {
 	"items": [
 		{
-			"id": "bread",
-			"name": "Fresh Bread",
-			"price": 5,
-			"category": "food",
-			"description": "Warm and crusty. Everyone needs bread.",
-			"color": [0.85, 0.72, 0.45]
-		},
-		{
-			"id": "candle",
-			"name": "Beeswax Candle",
+			"id": "coffee",
+			"name": "Artisan Coffee",
 			"price": 8,
-			"category": "home",
-			"description": "Soft light for quiet evenings.",
-			"color": [0.95, 0.88, 0.55]
+			"category": "beverage",
+			"description": "Small-batch roast. Bold and smooth.",
+			"color": [0.4, 0.28, 0.18]
 		},
 		{
-			"id": "herbs",
-			"name": "Dried Herbs",
-			"price": 6,
-			"category": "food",
-			"description": "A fragrant bundle of rosemary and thyme.",
-			"color": [0.45, 0.7, 0.4]
+			"id": "tools",
+			"name": "Hand Tools",
+			"price": 12,
+			"category": "hardware",
+			"description": "Quality steel. Built to last a lifetime.",
+			"color": [0.5, 0.52, 0.55]
 		},
 		{
-			"id": "soap",
-			"name": "Lavender Soap",
-			"price": 4,
-			"category": "home",
-			"description": "Handmade. Smells like the hillside.",
-			"color": [0.72, 0.62, 0.82]
-		},
-		{
-			"id": "tea",
-			"name": "Mountain Tea",
-			"price": 7,
-			"category": "food",
-			"description": "Picked at dawn. Brewed with patience.",
-			"color": [0.6, 0.75, 0.5]
-		},
-		{
-			"id": "pottery",
-			"name": "Clay Bowl",
+			"id": "spices",
+			"name": "Exotic Spices",
 			"price": 10,
-			"category": "home",
-			"description": "Simple and sturdy. Holds anything.",
-			"color": [0.75, 0.55, 0.4]
+			"category": "food",
+			"description": "Saffron, cardamom, and star anise.",
+			"color": [0.85, 0.45, 0.15]
+		},
+		{
+			"id": "leather",
+			"name": "Leather Goods",
+			"price": 15,
+			"category": "craft",
+			"description": "Full-grain hide. Supple and rich.",
+			"color": [0.6, 0.38, 0.2]
+		},
+		{
+			"id": "wine",
+			"name": "Craft Wine",
+			"price": 14,
+			"category": "beverage",
+			"description": "Local vineyard. Aged two seasons.",
+			"color": [0.55, 0.15, 0.22]
+		},
+		{
+			"id": "spirits",
+			"name": "Craft Spirits",
+			"price": 18,
+			"category": "beverage",
+			"description": "Small-batch whiskey. Oak barrel finish.",
+			"color": [0.75, 0.55, 0.2]
 		}
 	]
 }

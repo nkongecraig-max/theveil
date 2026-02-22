@@ -29,7 +29,7 @@ var entry_pos: Vector2 = Vector2(360, 1350)
 func setup(data: Dictionary) -> void:
 	customer_name = data.get("name", "Customer")
 	customer_color = data.get("color", Color(0.6, 0.7, 0.85))
-	requested_items.assign(data.get("items", ["bread"]))
+	requested_items.assign(data.get("items", ["coffee"]))
 	reward_coins = data.get("reward", 10)
 	puzzle_type = data.get("puzzle_type", "sorting")
 	recipe_name = data.get("recipe_name", "")

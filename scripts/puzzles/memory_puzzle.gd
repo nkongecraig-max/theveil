@@ -24,21 +24,21 @@ var is_solved: bool = false
 var is_reveal_phase: bool = true
 
 var item_colors: Dictionary = {
-	"bread": Color(0.85, 0.72, 0.45),
-	"candle": Color(0.95, 0.88, 0.55),
-	"herbs": Color(0.45, 0.7, 0.4),
-	"soap": Color(0.72, 0.62, 0.82),
-	"tea": Color(0.6, 0.75, 0.5),
-	"pottery": Color(0.75, 0.55, 0.4),
+	"coffee": Color(0.4, 0.28, 0.18),
+	"tools": Color(0.5, 0.52, 0.55),
+	"spices": Color(0.85, 0.45, 0.15),
+	"leather": Color(0.6, 0.38, 0.2),
+	"wine": Color(0.55, 0.15, 0.22),
+	"spirits": Color(0.75, 0.55, 0.2),
 }
 
 var item_names: Dictionary = {
-	"bread": "Bread",
-	"candle": "Candle",
-	"herbs": "Herbs",
-	"soap": "Soap",
-	"tea": "Tea",
-	"pottery": "Bowl",
+	"coffee": "Coffee",
+	"tools": "Tools",
+	"spices": "Spices",
+	"leather": "Leather",
+	"wine": "Wine",
+	"spirits": "Spirits",
 }
 
 func _ready() -> void:

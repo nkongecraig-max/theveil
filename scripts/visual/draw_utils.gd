@@ -125,41 +125,48 @@ static func draw_character(canvas: CanvasItem, pos: Vector2, body_color: Color, 
 static func draw_item_icon(canvas: CanvasItem, pos: Vector2, item_id: String, icon_size: float = 24.0) -> void:
 	var s = icon_size / 24.0
 	match item_id:
-		"bread":
-			# Loaf shape
-			draw_ellipse(canvas, Rect2(pos.x - 10 * s, pos.y - 6 * s, 20 * s, 12 * s), Color(0.82, 0.68, 0.38))
-			canvas.draw_arc(pos, 8 * s, deg_to_rad(200), deg_to_rad(340), 6, Color(0.65, 0.5, 0.25), 1.5 * s)
-		"herbs":
-			# Leaf cluster
-			for i in 3:
-				var angle = deg_to_rad(-30 + i * 30)
-				var leaf_pos = pos + Vector2(cos(angle), sin(angle)) * 4 * s
-				draw_ellipse(canvas, Rect2(leaf_pos.x - 4 * s, leaf_pos.y - 7 * s, 8 * s, 14 * s), Color(0.35, 0.6, 0.3))
-			canvas.draw_line(pos + Vector2(0, 4 * s), pos + Vector2(0, 10 * s), Color(0.3, 0.45, 0.2), 2 * s)
-		"tea":
-			# Cup
-			canvas.draw_rect(Rect2(pos.x - 6 * s, pos.y - 4 * s, 12 * s, 10 * s), Color(0.9, 0.85, 0.75))
-			canvas.draw_arc(pos + Vector2(6 * s, 1 * s), 4 * s, deg_to_rad(-70), deg_to_rad(70), 6, Color(0.7, 0.6, 0.5), 1.5 * s)
+		"coffee":
+			# Coffee mug
+			canvas.draw_rect(Rect2(pos.x - 7 * s, pos.y - 4 * s, 14 * s, 12 * s), Color(0.4, 0.28, 0.18))
+			canvas.draw_rect(Rect2(pos.x - 5 * s, pos.y - 2 * s, 10 * s, 8 * s), Color(0.55, 0.38, 0.25))
+			canvas.draw_arc(pos + Vector2(7 * s, 2 * s), 4 * s, deg_to_rad(-70), deg_to_rad(70), 6, Color(0.35, 0.22, 0.12), 2 * s)
 			# Steam
-			canvas.draw_arc(pos + Vector2(-2 * s, -8 * s), 3 * s, deg_to_rad(180), deg_to_rad(360), 4, Color(0.8, 0.8, 0.8, 0.5), 1 * s)
-		"candle":
-			# Candle body
-			canvas.draw_rect(Rect2(pos.x - 4 * s, pos.y - 2 * s, 8 * s, 14 * s), Color(0.92, 0.88, 0.75))
-			# Flame
-			draw_ellipse(canvas, Rect2(pos.x - 3 * s, pos.y - 10 * s, 6 * s, 10 * s), Color(0.95, 0.75, 0.2))
-			draw_ellipse(canvas, Rect2(pos.x - 1.5 * s, pos.y - 8 * s, 3 * s, 6 * s), Color(0.95, 0.9, 0.5))
-		"soap":
-			# Bar shape
-			canvas.draw_rect(Rect2(pos.x - 7 * s, pos.y - 5 * s, 14 * s, 10 * s), Color(0.72, 0.58, 0.78))
-			canvas.draw_rect(Rect2(pos.x - 5 * s, pos.y - 3 * s, 10 * s, 6 * s), Color(0.78, 0.65, 0.85))
-			# Bubbles
-			canvas.draw_circle(pos + Vector2(5 * s, -7 * s), 2 * s, Color(1, 1, 1, 0.4))
-		"pottery":
-			# Pot/bowl shape
-			canvas.draw_arc(pos + Vector2(0, 2 * s), 8 * s, deg_to_rad(0), deg_to_rad(180), 10, Color(0.7, 0.5, 0.35), 3 * s)
-			canvas.draw_line(pos + Vector2(-8 * s, 2 * s), pos + Vector2(8 * s, 2 * s), Color(0.7, 0.5, 0.35), 2 * s)
-			# Rim
-			draw_ellipse(canvas, Rect2(pos.x - 9 * s, pos.y - 2 * s, 18 * s, 6 * s), Color(0.75, 0.55, 0.38))
+			canvas.draw_arc(pos + Vector2(-2 * s, -9 * s), 3 * s, deg_to_rad(180), deg_to_rad(360), 4, Color(0.75, 0.7, 0.65, 0.5), 1 * s)
+			canvas.draw_arc(pos + Vector2(2 * s, -11 * s), 2 * s, deg_to_rad(180), deg_to_rad(360), 4, Color(0.75, 0.7, 0.65, 0.4), 1 * s)
+		"spices":
+			# Spice jar
+			canvas.draw_rect(Rect2(pos.x - 6 * s, pos.y - 6 * s, 12 * s, 14 * s), Color(0.85, 0.45, 0.15))
+			canvas.draw_rect(Rect2(pos.x - 5 * s, pos.y - 5 * s, 10 * s, 12 * s), Color(0.92, 0.55, 0.2))
+			canvas.draw_rect(Rect2(pos.x - 7 * s, pos.y - 9 * s, 14 * s, 4 * s), Color(0.65, 0.35, 0.1))
+			canvas.draw_circle(pos + Vector2(-2 * s, 0), 2 * s, Color(0.95, 0.2, 0.15))
+			canvas.draw_circle(pos + Vector2(2 * s, 2 * s), 1.5 * s, Color(0.95, 0.85, 0.2))
+		"wine":
+			# Wine bottle
+			canvas.draw_rect(Rect2(pos.x - 5 * s, pos.y - 4 * s, 10 * s, 16 * s), Color(0.55, 0.15, 0.22))
+			canvas.draw_rect(Rect2(pos.x - 3 * s, pos.y - 12 * s, 6 * s, 10 * s), Color(0.55, 0.15, 0.22))
+			canvas.draw_rect(Rect2(pos.x - 2 * s, pos.y - 14 * s, 4 * s, 4 * s), Color(0.45, 0.12, 0.18))
+			canvas.draw_rect(Rect2(pos.x - 4 * s, pos.y + 2 * s, 8 * s, 5 * s), Color(0.95, 0.92, 0.85))
+		"tools":
+			# Wrench
+			canvas.draw_rect(Rect2(pos.x - 2 * s, pos.y - 8 * s, 4 * s, 18 * s), Color(0.45, 0.42, 0.4))
+			canvas.draw_rect(Rect2(pos.x - 6 * s, pos.y - 12 * s, 12 * s, 6 * s), Color(0.5, 0.52, 0.55))
+			canvas.draw_rect(Rect2(pos.x - 2 * s, pos.y - 12 * s, 4 * s, 3 * s), Color(0.3, 0.3, 0.32))
+			canvas.draw_rect(Rect2(pos.x - 3 * s, pos.y + 4 * s, 6 * s, 6 * s), Color(0.6, 0.4, 0.2))
+		"leather":
+			# Leather wallet
+			canvas.draw_rect(Rect2(pos.x - 8 * s, pos.y - 6 * s, 16 * s, 12 * s), Color(0.5, 0.3, 0.15))
+			canvas.draw_rect(Rect2(pos.x - 7 * s, pos.y - 5 * s, 14 * s, 10 * s), Color(0.6, 0.38, 0.2))
+			for i in 5:
+				var sx = pos.x - 5 * s + i * 3 * s
+				canvas.draw_rect(Rect2(sx, pos.y - 4 * s, 1.5 * s, 1.5 * s), Color(0.8, 0.65, 0.4))
+			canvas.draw_circle(pos + Vector2(0, 4 * s), 2 * s, Color(0.8, 0.7, 0.3))
+		"spirits":
+			# Whiskey bottle
+			canvas.draw_rect(Rect2(pos.x - 5 * s, pos.y - 2 * s, 10 * s, 14 * s), Color(0.75, 0.55, 0.2))
+			canvas.draw_rect(Rect2(pos.x - 3 * s, pos.y - 10 * s, 6 * s, 10 * s), Color(0.7, 0.5, 0.18))
+			canvas.draw_rect(Rect2(pos.x - 3 * s, pos.y - 13 * s, 6 * s, 4 * s), Color(0.3, 0.25, 0.15))
+			canvas.draw_rect(Rect2(pos.x - 4 * s, pos.y + 2 * s, 8 * s, 6 * s), Color(0.95, 0.9, 0.8))
+			canvas.draw_rect(Rect2(pos.x - 3 * s, pos.y + 4 * s, 6 * s, 1 * s), Color(0.3, 0.2, 0.1))
 		_:
 			# Generic box
 			canvas.draw_rect(Rect2(pos.x - 8 * s, pos.y - 8 * s, 16 * s, 16 * s), Color(0.7, 0.65, 0.6))

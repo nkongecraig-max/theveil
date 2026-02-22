@@ -126,13 +126,13 @@ func _draw_shelf_unit(pos: Vector2, size: Vector2) -> void:
 	var rng = RandomNumberGenerator.new()
 	rng.seed = int(pos.x * 7 + pos.y)
 	var item_colors = [
-		Color(0.95, 0.7, 0.2),   # Gold jar
-		Color(0.25, 0.7, 0.3),   # Green bottle
-		Color(0.95, 0.35, 0.3),  # Red potion
-		Color(0.55, 0.35, 0.85), # Purple vial
-		Color(0.3, 0.6, 0.9),    # Blue flask
+		Color(0.4, 0.28, 0.18),   # Coffee brown
+		Color(0.85, 0.45, 0.15),  # Spice orange
+		Color(0.55, 0.15, 0.22),  # Wine burgundy
+		Color(0.5, 0.52, 0.55),   # Tools steel
+		Color(0.75, 0.55, 0.2),   # Spirits amber
 	]
-	var item_shapes = [0, 1, 2, 0, 1]  # 0=jar, 1=bottle, 2=round flask
+	var item_shapes = [0, 1, 1, 2, 1]  # 0=jar(coffee), 1=bottle(wine/spirits), 2=box(tools)
 	for i in shelf_count:
 		var sy = pos.y + (i + 1) * (size.y / (shelf_count + 1)) - 18
 		var item_count = rng.randi_range(3, 4)
@@ -187,7 +187,7 @@ func _draw_back_shelf(pos: Vector2, size: Vector2) -> void:
 	# Bigger items with distinct shapes
 	var rng = RandomNumberGenerator.new()
 	rng.seed = int(pos.x)
-	var colors = [Color(0.92, 0.65, 0.25), Color(0.35, 0.75, 0.4), Color(0.85, 0.35, 0.35), Color(0.45, 0.55, 0.9)]
+	var colors = [Color(0.4, 0.28, 0.18), Color(0.55, 0.15, 0.22), Color(0.85, 0.45, 0.15), Color(0.75, 0.55, 0.2)]
 	var spacing = size.x / 5
 	for i in 4:
 		var ix = pos.x + spacing * (i + 0.5)

@@ -6,7 +6,7 @@ extends Area2D
 signal shelf_opened(shelf_id: String, items: Array)
 
 @export var shelf_id: String = "shelf_left"
-@export var shelf_items: Array[String] = ["bread", "candle", "herbs"]
+@export var shelf_items: Array[String] = ["coffee", "tools", "spices"]
 
 var player_in_range: bool = false
 

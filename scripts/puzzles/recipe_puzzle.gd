@@ -27,54 +27,54 @@ var is_solved: bool = false
 
 # Recipes: product -> required ingredients
 var recipes: Dictionary = {
-	"herbal_soap": {
-		"name": "Herbal Soap",
-		"ingredients": ["soap", "herbs"],
-		"color": Color(0.55, 0.72, 0.55),
+	"spiced_coffee": {
+		"name": "Spiced Coffee",
+		"ingredients": ["coffee", "spices"],
+		"color": Color(0.5, 0.32, 0.18),
 	},
-	"scented_candle": {
-		"name": "Scented Candle",
-		"ingredients": ["candle", "herbs"],
-		"color": Color(0.9, 0.85, 0.5),
+	"mulled_wine": {
+		"name": "Mulled Wine",
+		"ingredients": ["wine", "spices"],
+		"color": Color(0.6, 0.2, 0.25),
 	},
-	"bread_basket": {
-		"name": "Bread Basket",
-		"ingredients": ["bread", "bread"],
-		"color": Color(0.85, 0.72, 0.45),
+	"double_espresso": {
+		"name": "Double Espresso",
+		"ingredients": ["coffee", "coffee"],
+		"color": Color(0.35, 0.22, 0.15),
 	},
-	"tea_set": {
-		"name": "Tea Set",
-		"ingredients": ["tea", "pottery"],
-		"color": Color(0.6, 0.75, 0.55),
+	"cocktail_kit": {
+		"name": "Cocktail Kit",
+		"ingredients": ["spirits", "tools"],
+		"color": Color(0.65, 0.5, 0.3),
 	},
-	"gift_bundle": {
-		"name": "Gift Bundle",
-		"ingredients": ["soap", "candle", "tea"],
-		"color": Color(0.78, 0.65, 0.82),
+	"premium_bundle": {
+		"name": "Premium Bundle",
+		"ingredients": ["leather", "tools", "wine"],
+		"color": Color(0.6, 0.4, 0.3),
 	},
-	"herb_tea": {
-		"name": "Herb Tea",
-		"ingredients": ["tea", "herbs"],
-		"color": Color(0.5, 0.72, 0.45),
+	"infused_spirits": {
+		"name": "Infused Spirits",
+		"ingredients": ["spirits", "spices"],
+		"color": Color(0.7, 0.45, 0.2),
 	},
 }
 
 var ingredient_colors: Dictionary = {
-	"bread": Color(0.85, 0.72, 0.45),
-	"candle": Color(0.95, 0.88, 0.55),
-	"herbs": Color(0.45, 0.7, 0.4),
-	"soap": Color(0.72, 0.62, 0.82),
-	"tea": Color(0.6, 0.75, 0.5),
-	"pottery": Color(0.75, 0.55, 0.4),
+	"coffee": Color(0.4, 0.28, 0.18),
+	"tools": Color(0.5, 0.52, 0.55),
+	"spices": Color(0.85, 0.45, 0.15),
+	"leather": Color(0.6, 0.38, 0.2),
+	"wine": Color(0.55, 0.15, 0.22),
+	"spirits": Color(0.75, 0.55, 0.2),
 }
 
 var ingredient_names: Dictionary = {
-	"bread": "Bread",
-	"candle": "Candle",
-	"herbs": "Herbs",
-	"soap": "Soap",
-	"tea": "Tea",
-	"pottery": "Bowl",
+	"coffee": "Coffee",
+	"tools": "Tools",
+	"spices": "Spices",
+	"leather": "Leather",
+	"wine": "Wine",
+	"spirits": "Spirits",
 }
 
 func _ready() -> void:
