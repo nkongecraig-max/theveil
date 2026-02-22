@@ -57,6 +57,7 @@ func _ready() -> void:
 	var cv = Node2D.new()
 	cv.name = "CustomerArt"
 	cv.set_script(load("res://scripts/visual/customer_visual.gd"))
+	cv.scale = Vector2(1.5, 1.5)
 	add_child(cv)
 	cv.setup_appearance(customer_color, customer_name)
 	name_label.text = customer_name
@@ -74,6 +75,7 @@ func _physics_process(delta: float) -> void:
 			_showed_impatient = false
 			_show_request()
 			arrived_at_counter.emit(self)
+			AudioManager.play("customer_bell")
 			print("[Customer] %s arrived at counter. State: waiting" % customer_name)
 	elif state == "waiting":
 		var max_p = custom_patience if custom_patience > 0 else MAX_PATIENCE
@@ -85,6 +87,7 @@ func _physics_process(delta: float) -> void:
 		if patience_ratio < 0.3 and not _showed_impatient:
 			_showed_impatient = true
 			speech_label.text = impatient_text
+			AudioManager.play("patience_tick")
 		if patience <= 0.0:
 			# Customer ran out of patience — leaves without buying
 			speech_label.text = impatient_text
@@ -158,17 +161,17 @@ func fail_order() -> void:
 
 func _draw() -> void:
 	# --- Name plate background (always visible) ---
-	var np = Rect2(-55, -46, 110, 28)
+	var np = Rect2(-55, -70, 110, 28)
 	# Shadow
 	draw_rect(Rect2(np.position.x + 2, np.position.y + 2, np.size.x, np.size.y), Color(0, 0, 0, 0.2))
 	# Background
 	DU.draw_rounded_panel(self, np, Color(0.12, 0.1, 0.15, 0.82), 5.0)
 	# Color accent dot
-	draw_circle(Vector2(-44, -32), 3.5, customer_color.lightened(0.15))
+	draw_circle(Vector2(-44, -56), 3.5, customer_color.lightened(0.15))
 
 	# --- Speech bubble background (when text showing) ---
 	if speech_label.text != "":
-		var sb = Rect2(-125, 18, 250, 64)
+		var sb = Rect2(-125, 34, 250, 64)
 		# Shadow
 		draw_rect(Rect2(sb.position.x + 3, sb.position.y + 3, sb.size.x, sb.size.y), Color(0, 0, 0, 0.22))
 		# Background
@@ -190,7 +193,7 @@ func _draw() -> void:
 		return
 	var bar_w := 64.0
 	var bar_h := 8.0
-	var bar_y := -56.0
+	var bar_y := -80.0
 	var bg_rect = Rect2(-bar_w / 2, bar_y, bar_w, bar_h)
 	# Background
 	draw_rect(Rect2(bg_rect.position.x + 1, bg_rect.position.y + 1, bg_rect.size.x, bg_rect.size.y), Color(0, 0, 0, 0.15))
@@ -206,6 +209,20 @@ func _draw() -> void:
 		var pulse = (sin(_patience_pulse * 6.0) + 1.0) / 2.0
 		bar_color = Color(0.95, 0.2 + 0.15 * pulse, 0.1)
 	draw_rect(Rect2(-bar_w / 2, bar_y, fill_w, bar_h), bar_color)
+	# Accessibility: diagonal stripe pattern when patience is low (colorblind support)
+	if patience_ratio <= 0.35:
+		var stripe_c = Color(0, 0, 0, 0.25)
+		var stripe_step = 6
+		for sx_i in int(fill_w / stripe_step) + 2:
+			var sx_x = -bar_w / 2 + sx_i * stripe_step
+			if sx_x < -bar_w / 2 + fill_w:
+				draw_line(Vector2(sx_x, bar_y), Vector2(sx_x + bar_h, bar_y + bar_h), stripe_c, 1.0)
+	elif patience_ratio <= 0.6:
+		# Dots pattern for medium urgency
+		var dot_step = 8
+		for dx_i in int(fill_w / dot_step):
+			var dx_x = -bar_w / 2 + dx_i * dot_step + 4
+			draw_circle(Vector2(dx_x, bar_y + bar_h / 2), 1, Color(0, 0, 0, 0.15))
 	# Border
 	draw_rect(bg_rect, Color(0.3, 0.25, 0.2), false, 1.5)
 	# Tick marks at 25%, 50%, 75%

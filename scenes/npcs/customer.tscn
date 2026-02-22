@@ -24,9 +24,9 @@ color = Color(0.6, 0.7, 0.85, 1)
 
 [node name="NameLabel" type="Label" parent="."]
 offset_left = -60.0
-offset_top = -48.0
+offset_top = -72.0
 offset_right = 60.0
-offset_bottom = -18.0
+offset_bottom = -42.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 22
 text = "Customer"
@@ -35,9 +35,9 @@ vertical_alignment = 1
 
 [node name="SpeechBubble" type="Label" parent="."]
 offset_left = -140.0
-offset_top = 22.0
+offset_top = 36.0
 offset_right = 140.0
-offset_bottom = 80.0
+offset_bottom = 94.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 20
 text = ""

@@ -139,6 +139,11 @@ func dismiss_all_hints() -> void:
 func has_hint(hint_id: String) -> bool:
 	return hint_id in _hints_shown
 
+func set_hints_visible(vis: bool) -> void:
+	for hint in _active_hints:
+		if is_instance_valid(hint):
+			hint.visible = vis
+
 func _create_hint_bubble(text: String, pos: Vector2, arrow_dir: String) -> Control:
 	var container = Control.new()
 	container.position = pos
@@ -175,13 +180,13 @@ func _create_hint_bubble(text: String, pos: Vector2, arrow_dir: String) -> Contr
 	match arrow_dir:
 		"down":
 			icon_color = Color(0.2, 0.55, 0.9, 0.35)
-			icon_char = "?"
+			icon_char = "\ud83e\udd77"
 		"up":
 			icon_color = Color(0.9, 0.55, 0.15, 0.35)
-			icon_char = "!"
+			icon_char = "\ud83e\udd77"
 		_:
 			icon_color = Color(0.3, 0.75, 0.4, 0.35)
-			icon_char = "*"
+			icon_char = "\ud83e\udd77"
 	var icon_bg = ColorRect.new()
 	icon_bg.position = Vector2(0, 0)
 	icon_bg.size = Vector2(48, 72)

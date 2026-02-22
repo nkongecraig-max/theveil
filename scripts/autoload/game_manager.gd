@@ -6,6 +6,7 @@ extends Node
 signal scene_changed(scene_name: String)
 signal day_advanced(day_number: int)
 signal game_state_changed(key: String, value: Variant)
+signal daily_reward_available(streak: int, coins: int)
 
 enum GamePhase { SLEEPING_LIFE, THE_CRACKS, NEW_WORLD }
 
@@ -26,12 +27,35 @@ var shop_upgrades: Array[String] = []
 var session_start_time: float = 0.0
 var total_play_time: float = 0.0
 
+# Daily reward system
+var last_reward_date: String = ""  # "YYYY-MM-DD"
+var daily_streak: int = 0
+
+# Best-day stats
+var best_day_coins: int = 0
+var best_day_served: int = 0
+var best_day_number: int = 0
+
 func _ready() -> void:
 	session_start_time = Time.get_unix_time_from_system()
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	print("[GameManager] The Veil initialized. Phase: SLEEPING_LIFE")
 
 func _process(_delta: float) -> void:
 	total_play_time = Time.get_unix_time_from_system() - session_start_time
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		# App going to background — auto-save and pause
+		get_tree().paused = true
+		SaveManager.save_game()
+		Analytics.track_event("app_backgrounded", {})
+	elif what == NOTIFICATION_APPLICATION_FOCUS_IN:
+		# App returning — resume
+		get_tree().paused = false
+		Analytics.track_event("app_resumed", {})
+	elif what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		SaveManager.save_game()
 
 # -- State Management --
 
@@ -64,16 +88,15 @@ func meet_npc(npc_id: String) -> void:
 		Analytics.track_event("npc_met", {"npc_id": npc_id})
 
 func _check_level_up() -> void:
-	# Simple level curve: every 3 puzzles = 1 level (will be tuned later)
 	var new_level = 1 + (puzzles_completed / 3)
 	if new_level > player_level:
 		player_level = new_level
 		game_state_changed.emit("player_level", player_level)
 		Analytics.track_event("level_up", {"level": player_level})
+		AudioManager.play("level_up")
 		_check_phase_transition()
 
 func _check_phase_transition() -> void:
-	# Phase transitions at specific levels
 	if current_phase == GamePhase.SLEEPING_LIFE and player_level >= 30:
 		current_phase = GamePhase.THE_CRACKS
 		scene_changed.emit("the_cracks_intro")
@@ -87,6 +110,40 @@ func advance_day() -> void:
 	current_day += 1
 	day_advanced.emit(current_day)
 	Analytics.track_event("day_advanced", {"day": current_day})
+
+func record_day_stats(coins_earned: int, customers_served: int) -> void:
+	if coins_earned > best_day_coins:
+		best_day_coins = coins_earned
+		best_day_number = current_day
+	if customers_served > best_day_served:
+		best_day_served = customers_served
+
+# -- Daily Reward System --
+
+func check_daily_reward() -> void:
+	var today = _get_today_str()
+	if today == last_reward_date:
+		return
+	var yesterday = _get_yesterday_str()
+	if last_reward_date == yesterday:
+		daily_streak += 1
+	else:
+		daily_streak = 1
+	last_reward_date = today
+	var reward = mini(daily_streak * 5, 25)
+	add_coins(reward)
+	daily_reward_available.emit(daily_streak, reward)
+	AudioManager.play("daily_reward")
+	Analytics.track_event("daily_reward", {"streak": daily_streak, "coins": reward})
+
+func _get_today_str() -> String:
+	var dt = Time.get_datetime_dict_from_system()
+	return "%04d-%02d-%02d" % [dt["year"], dt["month"], dt["day"]]
+
+func _get_yesterday_str() -> String:
+	var unix = Time.get_unix_time_from_system() - 86400
+	var dt = Time.get_datetime_dict_from_unix_time(int(unix))
+	return "%04d-%02d-%02d" % [dt["year"], dt["month"], dt["day"]]
 
 # -- Scene Transitions --
 
@@ -108,12 +165,16 @@ func get_save_data() -> Dictionary:
 		"items_collected": items_collected,
 		"shop_upgrades": shop_upgrades,
 		"total_play_time": total_play_time,
+		"last_reward_date": last_reward_date,
+		"daily_streak": daily_streak,
+		"best_day_coins": best_day_coins,
+		"best_day_served": best_day_served,
+		"best_day_number": best_day_number,
 	}
 
 func load_save_data(data: Dictionary) -> void:
 	for key in data:
 		if key in self:
-			# Handle typed string arrays from JSON (which loads as untyped Array)
 			if key in ["npcs_met", "items_collected", "shop_upgrades"]:
 				var typed_arr: Array[String] = []
 				for v in data[key]:

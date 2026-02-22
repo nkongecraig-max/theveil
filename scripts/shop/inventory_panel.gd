@@ -5,6 +5,7 @@ extends Control
 ## Player can tap items to stock/restock the shelf.
 
 signal item_selected(item_id: String)
+signal panel_closed
 
 @onready var panel_bg: ColorRect = $PanelBG
 @onready var title_label: Label = $PanelBG/TitleLabel
@@ -75,7 +76,7 @@ func close_panel() -> void:
 		return
 	var tween = create_tween()
 	tween.tween_property(panel_bg, "position:y", 400.0, 0.2).set_ease(Tween.EASE_IN)
-	tween.tween_callback(func(): visible = false; is_open = false)
+	tween.tween_callback(func(): visible = false; is_open = false; panel_closed.emit())
 
 func _add_item_card(item: Dictionary) -> void:
 	var card = PanelContainer.new()

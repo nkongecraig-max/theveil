@@ -12,11 +12,13 @@ var accessory: int = 0   # 0=none, 1=hat, 2=scarf, 3=glasses
 var is_walking := false
 var walk_cycle: float = 0.0
 var facing_left := false
+var customer_name: String = ""
 
-func setup_appearance(color: Color, customer_name: String) -> void:
+func setup_appearance(color: Color, cname: String) -> void:
 	body_color = color
+	customer_name = cname
 	# Derive hair + style from name hash
-	var h = customer_name.hash()
+	var h = cname.hash()
 	hair_style = absi(h) % 4
 	accessory = absi(h >> 4) % 4
 	hair_color = Color(
@@ -61,6 +63,14 @@ func _draw() -> void:
 	# Shirt detail/pattern
 	draw_rect(Rect2(-10, -5 + bob, 20, 3), body_color.lightened(0.08))
 	draw_rect(Rect2(-2, -2 + bob, 4, 10), body_color.lightened(0.05))
+	# Name on shirt
+	var font = ThemeDB.fallback_font
+	if font and customer_name != "":
+		var fsize = 7
+		var tw = font.get_string_size(customer_name, HORIZONTAL_ALIGNMENT_CENTER, -1, fsize)
+		var tx = -tw.x / 2
+		var ty = 6 + bob
+		draw_string(font, Vector2(tx, ty), customer_name, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, body_color.darkened(0.35))
 
 	# Arms
 	var arm_swing = sin(walk_cycle) * 4.0 if is_walking else 0.0

@@ -21,6 +21,8 @@ var shelf_stock: Node2D = null
 var day_intro: Control = null
 var screen_shake: Node = null
 var milestone_popup: Control = null
+var shop_vis: Node2D = null
+var player_art: Node2D = null
 var coins_earned_today: int = 0
 var _intro_playing: bool = false
 
@@ -54,6 +56,7 @@ func _ready() -> void:
 	GameManager.game_state_changed.connect(_on_state_changed)
 	GameManager.day_advanced.connect(_on_day_advanced)
 	inventory_panel.item_selected.connect(_on_item_selected)
+	inventory_panel.panel_closed.connect(_on_inventory_closed)
 	sorting_puzzle.puzzle_completed.connect(_on_puzzle_completed)
 	sorting_puzzle.puzzle_closed.connect(_on_puzzle_closed)
 	recipe_puzzle.puzzle_completed.connect(_on_puzzle_completed)
@@ -73,6 +76,8 @@ func _ready() -> void:
 	var old_hint = $UI.get_node_or_null("TapHint")
 	if old_hint:
 		old_hint.visible = false
+	# Daily reward popup
+	GameManager.daily_reward_available.connect(_on_daily_reward)
 	print("[Shop] Welcome to your shop. Day %d." % GameManager.current_day)
 	_start_day_with_intro()
 
@@ -94,6 +99,7 @@ func _input(event: InputEvent) -> void:
 	# Priority 1: Did they tap the counter? (and is player close enough?)
 	if counter_zone.has_point(tap_pos):
 		_dismiss_tutorial_hint_for_action("counter")
+		AudioManager.play("tap")
 		if tap_juice:
 			tap_juice.spawn_tap(tap_pos, Color(0.9, 0.75, 0.4))
 		var dist = player.global_position.distance_to(counter_zone.get_center())
@@ -122,6 +128,7 @@ func _input(event: InputEvent) -> void:
 					if tap_juice:
 						tap_juice.spawn_tap(tap_pos, Color(0.6, 0.9, 0.5))
 					inventory_panel.open_panel(shelf_id, shelf_items[shelf_id])
+					_set_hud_visible(false)
 					return
 			# Not close enough — walk toward shelf
 			if tap_juice:
@@ -150,6 +157,9 @@ func _try_serve_customer() -> bool:
 			var items: Array[String] = []
 			items.assign(customer.requested_items)
 			sorting_puzzle.start_puzzle("order_%d" % GameManager.current_day, items)
+		_set_hud_visible(false)
+		if day_intro:
+			day_intro.set_hints_visible(false)
 		return true
 	return false
 
@@ -157,6 +167,7 @@ func _on_item_selected(item_id: String) -> void:
 	print("[Shop] Browsing item: %s" % item_id)
 
 func _on_puzzle_completed(_puzzle_id: String, _time_taken: float, _moves: int) -> void:
+	AudioManager.play("puzzle_complete")
 	var customer = customer_manager.get_current_customer()
 	if customer:
 		customer.complete_order()
@@ -164,6 +175,9 @@ func _on_puzzle_completed(_puzzle_id: String, _time_taken: float, _moves: int) -
 	sorting_puzzle.visible = false
 	recipe_puzzle.visible = false
 	memory_puzzle.visible = false
+	_set_hud_visible(true)
+	if day_intro:
+		day_intro.set_hints_visible(true)
 	# After first puzzle on Day 1 — show shelf restock hint
 	if GameManager.current_day == 1 and day_intro and not day_intro.has_hint("shelf"):
 		var t = get_tree().create_timer(2.0)
@@ -173,10 +187,17 @@ func _on_puzzle_completed(_puzzle_id: String, _time_taken: float, _moves: int) -
 		)
 
 func _on_puzzle_closed() -> void:
-	pass
+	_set_hud_visible(true)
+	if day_intro:
+		day_intro.set_hints_visible(true)
+
+func _on_daily_reward(streak: int, coins: int) -> void:
+	if tap_juice:
+		tap_juice.spawn_floating_text(Vector2(360, 600), "Day %d streak! +%d coins" % [streak, coins], Color(1.0, 0.85, 0.3))
 
 func _on_order_filled(reward: int) -> void:
 	coins_earned_today += reward
+	AudioManager.play("coin" if reward > 0 else "fail")
 	# Deplete 1-2 shelves per order served
 	if shelf_stock:
 		shelf_stock.deplete_random(randi_range(1, 2))
@@ -214,6 +235,7 @@ func _on_stock_changed(_shelf_id: String, _level: int) -> void:
 func _on_restock_complete(_shelf_id: String) -> void:
 	_update_hud()
 	_dismiss_tutorial_hint_for_action("shelf")
+	AudioManager.play("restock")
 	Analytics.track_event("shelf_restocked", {"shelf_id": _shelf_id})
 
 func _on_day_progress(progress: float) -> void:
@@ -264,6 +286,8 @@ func _dismiss_tutorial_hint_for_action(action: String) -> void:
 
 func _on_day_complete() -> void:
 	print("[Shop] All customers served! Day %d complete." % GameManager.current_day)
+	var served = customer_manager.customers_served_today
+	GameManager.record_day_stats(coins_earned_today, served)
 	GameManager.advance_day()
 	SaveManager.save_game()
 	_show_day_summary()
@@ -313,6 +337,33 @@ func _show_day_summary() -> void:
 		star_text += "*"
 	summary.get_node("StarsLabel").text = star_text
 
+	# --- Best day + tomorrow preview ---
+	if not summary.has_node("ExtraInfo"):
+		var info = Label.new()
+		info.name = "ExtraInfo"
+		info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		info.add_theme_font_size_override("font_size", 20)
+		info.position = Vector2(60, 490)
+		info.size = Vector2(600, 80)
+		info.autowrap_mode = TextServer.AUTOWRAP_WORD
+		info.modulate = Color(0.8, 0.75, 0.65, 0.85)
+		summary.add_child(info)
+	var extra_lines: Array[String] = []
+	if coins_earned_today >= GameManager.best_day_coins and coins_earned_today > 0:
+		extra_lines.append("New personal best!")
+	extra_lines.append("Best day: Day %d (%d coins)" % [GameManager.best_day_number, GameManager.best_day_coins])
+	# Tomorrow preview tease
+	var next_day = GameManager.current_day
+	if next_day <= 3:
+		extra_lines.append("Tomorrow: A new face arrives...")
+	elif next_day <= 6:
+		extra_lines.append("Tomorrow: Customers are getting pickier!")
+	elif next_day <= 9:
+		extra_lines.append("Tomorrow: Busy day ahead...")
+	else:
+		extra_lines.append("Tomorrow: The regulars expect quality!")
+	summary.get_node("ExtraInfo").text = "\n".join(extra_lines)
+
 	# --- Buttons ---
 	summary.get_node("NextBtn").pressed.connect(func():
 		_close_day_summary(summary)
@@ -354,12 +405,13 @@ func _close_day_summary(summary: Control) -> void:
 
 func _setup_visuals() -> void:
 	# Add procedural shop background (draws behind everything)
-	var shop_vis = Node2D.new()
+	shop_vis = Node2D.new()
 	shop_vis.name = "ShopVisuals"
 	shop_vis.z_index = -5
 	shop_vis.set_script(load("res://scripts/visual/shop_visuals.gd"))
 	add_child(shop_vis)
 	move_child(shop_vis, 0)
+	shop_vis.set_level(GameManager.player_level)
 	# Hide all ColorRect placeholders
 	for node_name in ["Floor", "WallBack", "WallLeft", "WallRight", "Counter", "CounterLabel", "CounterFront", "DoorMat", "DoorLabel"]:
 		var node = get_node_or_null(node_name)
@@ -383,10 +435,12 @@ func _setup_visuals() -> void:
 		if node:
 			node.visible = false
 	# Add player visual
-	var pv = Node2D.new()
-	pv.name = "PlayerArt"
-	pv.set_script(load("res://scripts/visual/player_visual.gd"))
-	player.add_child(pv)
+	player_art = Node2D.new()
+	player_art.name = "PlayerArt"
+	player_art.set_script(load("res://scripts/visual/player_visual.gd"))
+	player_art.scale = Vector2(1.5, 1.5)
+	player.add_child(player_art)
+	player_art.set_level(GameManager.player_level)
 	# Day/night cycle (CanvasModulate tints entire scene)
 	day_night = CanvasModulate.new()
 	day_night.name = "DayNightCycle"
@@ -467,6 +521,13 @@ func _register_ad_surfaces() -> void:
 func _on_state_changed(key: String, _value: Variant) -> void:
 	if key == "player_coins":
 		_update_hud()
+	elif key == "player_level":
+		_update_hud()
+		# Refresh visuals to show level progression
+		if shop_vis:
+			shop_vis.set_level(GameManager.player_level)
+		if player_art:
+			player_art.set_level(GameManager.player_level)
 
 func _on_day_advanced(_day: int) -> void:
 	_update_hud()
@@ -479,8 +540,16 @@ func _on_upgrade_purchased(upgrade_id: String) -> void:
 	_apply_visual_upgrade(upgrade_id)
 	print("[Shop] Upgrade purchased: %s" % upgrade_id)
 
+func _on_inventory_closed() -> void:
+	_set_hud_visible(true)
+
 func _on_upgrade_shop_closed() -> void:
 	pass
+
+func _set_hud_visible(vis: bool) -> void:
+	day_label.visible = vis
+	coins_label.visible = vis
+	upgrade_btn.visible = vis
 
 func _apply_visual_upgrade(upgrade_id: String) -> void:
 	match upgrade_id:
