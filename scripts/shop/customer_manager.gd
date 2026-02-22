@@ -13,6 +13,7 @@ var current_customer: CharacterBody2D = null
 var customers_served_today: int = 0
 var base_customers_per_day: int = 3
 var shop_node: Node2D = null
+var _streak: int = 0
 
 # Customer templates for early game
 # puzzle_type: "sorting" = tap items in order, "recipe" = pick ingredients to craft, "memory" = remember items
@@ -99,8 +100,12 @@ func init(shop: Node2D) -> void:
 
 func start_day() -> void:
 	customers_served_today = 0
+	_streak = 0
 	day_progress.emit(0.0)
 	_spawn_next_customer()
+
+func get_streak() -> int:
+	return _streak
 
 func _get_customers_for_today() -> int:
 	# Scale: Day 1-3 = 3 customers, Day 4-6 = 4, Day 7+ = 5
@@ -151,6 +156,11 @@ func _on_customer_arrived(_customer: CharacterBody2D) -> void:
 	pass
 
 func _on_order_completed(_customer: CharacterBody2D, reward: int) -> void:
+	# If reward is 0, customer left unhappy (patience ran out) — no coins, break streak
+	if reward <= 0:
+		_streak = 0
+		order_filled.emit(0)
+		return
 	# Day bonus: +1 coin per day past Day 1
 	var day_bonus = maxi(0, GameManager.current_day - 1)
 	var total_reward = reward + day_bonus
@@ -160,9 +170,17 @@ func _on_order_completed(_customer: CharacterBody2D, reward: int) -> void:
 	if _current_data.get("puzzle_type", "") == "recipe":
 		total_reward += UpgradeShop.get_recipe_bonus()
 	total_reward = int(total_reward * UpgradeShop.get_reward_multiplier())
+	# Patience bonus — fast service = bigger tip, slow = penalty
+	if _customer.has_method("get_patience_bonus"):
+		total_reward = int(total_reward * _customer.get_patience_bonus())
 	# Stock level multiplier — full shelves = full reward, empty = half
 	if shop_node and shop_node.shelf_stock:
 		total_reward = int(total_reward * shop_node.shelf_stock.get_reward_multiplier())
+	# Streak bonus
+	_streak += 1
+	if _streak >= 2:
+		var streak_mult = 1.0 + (_streak - 1) * 0.1  # +10% per streak
+		total_reward = int(total_reward * streak_mult)
 	GameManager.add_coins(total_reward)
 	order_filled.emit(total_reward)
 

@@ -104,6 +104,7 @@ func _input(event: InputEvent) -> void:
 					if shelf_stock.restock(shelf_id):
 						if tap_juice:
 							tap_juice.spawn_tap(tap_pos, Color(0.3, 1.0, 0.5))
+							tap_juice.spawn_floating_text(tap_pos + Vector2(0, -30), "Restocked!", Color(0.3, 0.9, 0.5))
 						print("[Shop] Restocked %s!" % shelf_id)
 					return
 				else:
@@ -162,6 +163,15 @@ func _on_order_filled(reward: int) -> void:
 		shelf_stock.deplete_random(randi_range(1, 2))
 	if tap_juice:
 		tap_juice.spawn_coin_pop(Vector2(360, 900))
+		# Floating coin text
+		if reward > 0:
+			tap_juice.spawn_floating_text(Vector2(360, 860), "+%d coins" % reward, Color(1.0, 0.9, 0.3))
+			# Streak flash
+			var streak = customer_manager.get_streak()
+			if streak >= 2:
+				tap_juice.spawn_streak_flash(Vector2(360, 780), streak)
+		else:
+			tap_juice.spawn_floating_text(Vector2(360, 860), "Too slow!", Color(0.9, 0.3, 0.3))
 	print("[Shop] Order filled! Earned %d coins." % reward)
 
 func _on_stock_changed(_shelf_id: String, _level: int) -> void:
