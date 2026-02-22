@@ -52,7 +52,7 @@ text = "Close"
 layout_mode = 0
 offset_left = 10.0
 offset_top = 60.0
-offset_right = 690.0
+offset_right = 660.0
 offset_bottom = 600.0
 
 [node name="ItemContainer" type="VBoxContainer" parent="PanelBG/ScrollContainer"]

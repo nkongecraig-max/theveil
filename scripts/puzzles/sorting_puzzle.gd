@@ -24,12 +24,12 @@ var start_time: float = 0.0
 var is_solved: bool = false
 
 var item_colors: Dictionary = {
-	"coffee": Color(0.4, 0.28, 0.18),
-	"tools": Color(0.5, 0.52, 0.55),
-	"spices": Color(0.85, 0.45, 0.15),
-	"leather": Color(0.6, 0.38, 0.2),
-	"wine": Color(0.55, 0.15, 0.22),
-	"spirits": Color(0.75, 0.55, 0.2),
+	"coffee": Color(0.35, 0.2, 0.12),
+	"tools": Color(0.35, 0.42, 0.55),
+	"spices": Color(0.95, 0.55, 0.08),
+	"leather": Color(0.65, 0.4, 0.18),
+	"wine": Color(0.62, 0.08, 0.18),
+	"spirits": Color(0.85, 0.65, 0.1),
 }
 
 var item_names: Dictionary = {

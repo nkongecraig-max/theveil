@@ -6,7 +6,7 @@
 			"price": 8,
 			"category": "beverage",
 			"description": "Small-batch roast. Bold and smooth.",
-			"color": [0.4, 0.28, 0.18]
+			"color": [0.35, 0.2, 0.12]
 		},
 		{
 			"id": "tools",
@@ -14,7 +14,7 @@
 			"price": 12,
 			"category": "hardware",
 			"description": "Quality steel. Built to last a lifetime.",
-			"color": [0.5, 0.52, 0.55]
+			"color": [0.35, 0.42, 0.55]
 		},
 		{
 			"id": "spices",
@@ -22,7 +22,7 @@
 			"price": 10,
 			"category": "food",
 			"description": "Saffron, cardamom, and star anise.",
-			"color": [0.85, 0.45, 0.15]
+			"color": [0.95, 0.55, 0.08]
 		},
 		{
 			"id": "leather",
@@ -30,7 +30,7 @@
 			"price": 15,
 			"category": "craft",
 			"description": "Full-grain hide. Supple and rich.",
-			"color": [0.6, 0.38, 0.2]
+			"color": [0.65, 0.4, 0.18]
 		},
 		{
 			"id": "wine",
@@ -38,7 +38,7 @@
 			"price": 14,
 			"category": "beverage",
 			"description": "Local vineyard. Aged two seasons.",
-			"color": [0.55, 0.15, 0.22]
+			"color": [0.62, 0.08, 0.18]
 		},
 		{
 			"id": "spirits",
@@ -46,7 +46,7 @@
 			"price": 18,
 			"category": "beverage",
 			"description": "Small-batch whiskey. Oak barrel finish.",
-			"color": [0.75, 0.55, 0.2]
+			"color": [0.85, 0.65, 0.1]
 		}
 	]
 }

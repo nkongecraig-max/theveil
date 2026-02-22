@@ -126,47 +126,47 @@ static func draw_item_icon(canvas: CanvasItem, pos: Vector2, item_id: String, ic
 	var s = icon_size / 24.0
 	match item_id:
 		"coffee":
-			# Coffee mug
-			canvas.draw_rect(Rect2(pos.x - 7 * s, pos.y - 4 * s, 14 * s, 12 * s), Color(0.4, 0.28, 0.18))
-			canvas.draw_rect(Rect2(pos.x - 5 * s, pos.y - 2 * s, 10 * s, 8 * s), Color(0.55, 0.38, 0.25))
-			canvas.draw_arc(pos + Vector2(7 * s, 2 * s), 4 * s, deg_to_rad(-70), deg_to_rad(70), 6, Color(0.35, 0.22, 0.12), 2 * s)
+			# Coffee mug — deep espresso
+			canvas.draw_rect(Rect2(pos.x - 7 * s, pos.y - 4 * s, 14 * s, 12 * s), Color(0.35, 0.2, 0.12))
+			canvas.draw_rect(Rect2(pos.x - 5 * s, pos.y - 2 * s, 10 * s, 8 * s), Color(0.48, 0.3, 0.18))
+			canvas.draw_arc(pos + Vector2(7 * s, 2 * s), 4 * s, deg_to_rad(-70), deg_to_rad(70), 6, Color(0.3, 0.18, 0.1), 2 * s)
 			# Steam
-			canvas.draw_arc(pos + Vector2(-2 * s, -9 * s), 3 * s, deg_to_rad(180), deg_to_rad(360), 4, Color(0.75, 0.7, 0.65, 0.5), 1 * s)
-			canvas.draw_arc(pos + Vector2(2 * s, -11 * s), 2 * s, deg_to_rad(180), deg_to_rad(360), 4, Color(0.75, 0.7, 0.65, 0.4), 1 * s)
+			canvas.draw_arc(pos + Vector2(-2 * s, -9 * s), 3 * s, deg_to_rad(180), deg_to_rad(360), 4, Color(0.8, 0.75, 0.7, 0.5), 1 * s)
+			canvas.draw_arc(pos + Vector2(2 * s, -11 * s), 2 * s, deg_to_rad(180), deg_to_rad(360), 4, Color(0.8, 0.75, 0.7, 0.4), 1 * s)
 		"spices":
-			# Spice jar
-			canvas.draw_rect(Rect2(pos.x - 6 * s, pos.y - 6 * s, 12 * s, 14 * s), Color(0.85, 0.45, 0.15))
-			canvas.draw_rect(Rect2(pos.x - 5 * s, pos.y - 5 * s, 10 * s, 12 * s), Color(0.92, 0.55, 0.2))
-			canvas.draw_rect(Rect2(pos.x - 7 * s, pos.y - 9 * s, 14 * s, 4 * s), Color(0.65, 0.35, 0.1))
-			canvas.draw_circle(pos + Vector2(-2 * s, 0), 2 * s, Color(0.95, 0.2, 0.15))
-			canvas.draw_circle(pos + Vector2(2 * s, 2 * s), 1.5 * s, Color(0.95, 0.85, 0.2))
+			# Spice jar — vivid saffron
+			canvas.draw_rect(Rect2(pos.x - 6 * s, pos.y - 6 * s, 12 * s, 14 * s), Color(0.9, 0.5, 0.05))
+			canvas.draw_rect(Rect2(pos.x - 5 * s, pos.y - 5 * s, 10 * s, 12 * s), Color(0.95, 0.6, 0.1))
+			canvas.draw_rect(Rect2(pos.x - 7 * s, pos.y - 9 * s, 14 * s, 4 * s), Color(0.7, 0.38, 0.05))
+			canvas.draw_circle(pos + Vector2(-2 * s, 0), 2 * s, Color(0.95, 0.15, 0.1))
+			canvas.draw_circle(pos + Vector2(2 * s, 2 * s), 1.5 * s, Color(0.95, 0.85, 0.15))
 		"wine":
-			# Wine bottle
-			canvas.draw_rect(Rect2(pos.x - 5 * s, pos.y - 4 * s, 10 * s, 16 * s), Color(0.55, 0.15, 0.22))
-			canvas.draw_rect(Rect2(pos.x - 3 * s, pos.y - 12 * s, 6 * s, 10 * s), Color(0.55, 0.15, 0.22))
-			canvas.draw_rect(Rect2(pos.x - 2 * s, pos.y - 14 * s, 4 * s, 4 * s), Color(0.45, 0.12, 0.18))
+			# Wine bottle — rich ruby
+			canvas.draw_rect(Rect2(pos.x - 5 * s, pos.y - 4 * s, 10 * s, 16 * s), Color(0.62, 0.08, 0.18))
+			canvas.draw_rect(Rect2(pos.x - 3 * s, pos.y - 12 * s, 6 * s, 10 * s), Color(0.62, 0.08, 0.18))
+			canvas.draw_rect(Rect2(pos.x - 2 * s, pos.y - 14 * s, 4 * s, 4 * s), Color(0.5, 0.05, 0.12))
 			canvas.draw_rect(Rect2(pos.x - 4 * s, pos.y + 2 * s, 8 * s, 5 * s), Color(0.95, 0.92, 0.85))
 		"tools":
-			# Wrench
-			canvas.draw_rect(Rect2(pos.x - 2 * s, pos.y - 8 * s, 4 * s, 18 * s), Color(0.45, 0.42, 0.4))
-			canvas.draw_rect(Rect2(pos.x - 6 * s, pos.y - 12 * s, 12 * s, 6 * s), Color(0.5, 0.52, 0.55))
-			canvas.draw_rect(Rect2(pos.x - 2 * s, pos.y - 12 * s, 4 * s, 3 * s), Color(0.3, 0.3, 0.32))
-			canvas.draw_rect(Rect2(pos.x - 3 * s, pos.y + 4 * s, 6 * s, 6 * s), Color(0.6, 0.4, 0.2))
+			# Wrench — cool slate blue
+			canvas.draw_rect(Rect2(pos.x - 2 * s, pos.y - 8 * s, 4 * s, 18 * s), Color(0.3, 0.38, 0.48))
+			canvas.draw_rect(Rect2(pos.x - 6 * s, pos.y - 12 * s, 12 * s, 6 * s), Color(0.35, 0.42, 0.55))
+			canvas.draw_rect(Rect2(pos.x - 2 * s, pos.y - 12 * s, 4 * s, 3 * s), Color(0.2, 0.25, 0.35))
+			canvas.draw_rect(Rect2(pos.x - 3 * s, pos.y + 4 * s, 6 * s, 6 * s), Color(0.55, 0.35, 0.2))
 		"leather":
-			# Leather wallet
-			canvas.draw_rect(Rect2(pos.x - 8 * s, pos.y - 6 * s, 16 * s, 12 * s), Color(0.5, 0.3, 0.15))
-			canvas.draw_rect(Rect2(pos.x - 7 * s, pos.y - 5 * s, 14 * s, 10 * s), Color(0.6, 0.38, 0.2))
+			# Leather wallet — warm cognac
+			canvas.draw_rect(Rect2(pos.x - 8 * s, pos.y - 6 * s, 16 * s, 12 * s), Color(0.55, 0.32, 0.12))
+			canvas.draw_rect(Rect2(pos.x - 7 * s, pos.y - 5 * s, 14 * s, 10 * s), Color(0.65, 0.4, 0.18))
 			for i in 5:
 				var sx = pos.x - 5 * s + i * 3 * s
-				canvas.draw_rect(Rect2(sx, pos.y - 4 * s, 1.5 * s, 1.5 * s), Color(0.8, 0.65, 0.4))
-			canvas.draw_circle(pos + Vector2(0, 4 * s), 2 * s, Color(0.8, 0.7, 0.3))
+				canvas.draw_rect(Rect2(sx, pos.y - 4 * s, 1.5 * s, 1.5 * s), Color(0.85, 0.68, 0.4))
+			canvas.draw_circle(pos + Vector2(0, 4 * s), 2 * s, Color(0.85, 0.72, 0.3))
 		"spirits":
-			# Whiskey bottle
-			canvas.draw_rect(Rect2(pos.x - 5 * s, pos.y - 2 * s, 10 * s, 14 * s), Color(0.75, 0.55, 0.2))
-			canvas.draw_rect(Rect2(pos.x - 3 * s, pos.y - 10 * s, 6 * s, 10 * s), Color(0.7, 0.5, 0.18))
-			canvas.draw_rect(Rect2(pos.x - 3 * s, pos.y - 13 * s, 6 * s, 4 * s), Color(0.3, 0.25, 0.15))
-			canvas.draw_rect(Rect2(pos.x - 4 * s, pos.y + 2 * s, 8 * s, 6 * s), Color(0.95, 0.9, 0.8))
-			canvas.draw_rect(Rect2(pos.x - 3 * s, pos.y + 4 * s, 6 * s, 1 * s), Color(0.3, 0.2, 0.1))
+			# Whiskey bottle — bright gold
+			canvas.draw_rect(Rect2(pos.x - 5 * s, pos.y - 2 * s, 10 * s, 14 * s), Color(0.85, 0.65, 0.1))
+			canvas.draw_rect(Rect2(pos.x - 3 * s, pos.y - 10 * s, 6 * s, 10 * s), Color(0.8, 0.58, 0.08))
+			canvas.draw_rect(Rect2(pos.x - 3 * s, pos.y - 13 * s, 6 * s, 4 * s), Color(0.25, 0.2, 0.1))
+			canvas.draw_rect(Rect2(pos.x - 4 * s, pos.y + 2 * s, 8 * s, 6 * s), Color(0.95, 0.92, 0.82))
+			canvas.draw_rect(Rect2(pos.x - 3 * s, pos.y + 4 * s, 6 * s, 1 * s), Color(0.3, 0.2, 0.08))
 		_:
 			# Generic box
 			canvas.draw_rect(Rect2(pos.x - 8 * s, pos.y - 8 * s, 16 * s, 16 * s), Color(0.7, 0.65, 0.6))
