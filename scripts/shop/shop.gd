@@ -15,6 +15,10 @@ extends Node2D
 @onready var upgrade_shop: Control = $UI/UpgradeShop
 @onready var upgrade_btn: Button = $UI/UpgradeBtn
 
+var day_night: CanvasModulate = null
+var tap_juice: Node2D = null
+var coins_earned_today: int = 0
+
 # Shelf data
 var shelf_items: Dictionary = {
 	"shelf_left": ["bread", "herbs", "tea"],
@@ -57,6 +61,7 @@ func _ready() -> void:
 	customer_manager.init(self)
 	customer_manager.order_filled.connect(_on_order_filled)
 	customer_manager.day_complete.connect(_on_day_complete)
+	customer_manager.day_progress.connect(_on_day_progress)
 	Analytics.track_event("scene_entered", {"scene": "shop"})
 	_restore_visual_upgrades()
 	print("[Shop] Welcome to your shop. Day %d." % GameManager.current_day)
@@ -77,6 +82,8 @@ func _input(event: InputEvent) -> void:
 
 	# Priority 1: Did they tap the counter? (and is player close enough?)
 	if counter_zone.has_point(tap_pos):
+		if tap_juice:
+			tap_juice.spawn_tap(tap_pos, Color(0.9, 0.75, 0.4))
 		var dist = player.global_position.distance_to(counter_zone.get_center())
 		if dist < INTERACT_DISTANCE:
 			if _try_serve_customer():
@@ -89,6 +96,8 @@ func _input(event: InputEvent) -> void:
 	for shelf_id in shelf_zones:
 		var zone: Rect2 = shelf_zones[shelf_id]
 		if zone.has_point(tap_pos):
+			if tap_juice:
+				tap_juice.spawn_tap(tap_pos, Color(0.6, 0.9, 0.5))
 			var dist = player.global_position.distance_to(zone.get_center())
 			if dist < INTERACT_DISTANCE:
 				inventory_panel.open_panel(shelf_id, shelf_items[shelf_id])
@@ -98,6 +107,8 @@ func _input(event: InputEvent) -> void:
 			return
 
 	# Priority 3: Nothing special tapped — just walk there
+	if tap_juice:
+		tap_juice.spawn_tap(tap_pos, Color(1.0, 1.0, 1.0, 0.4))
 	player.move_to(tap_pos)
 
 func _try_serve_customer() -> bool:
@@ -134,7 +145,16 @@ func _on_puzzle_closed() -> void:
 	pass
 
 func _on_order_filled(reward: int) -> void:
+	coins_earned_today += reward
+	if tap_juice:
+		tap_juice.spawn_coin_pop(Vector2(360, 900))
 	print("[Shop] Order filled! Earned %d coins." % reward)
+
+func _on_day_progress(progress: float) -> void:
+	if day_night:
+		day_night.set_progress(progress)
+	if progress == 0.0:
+		coins_earned_today = 0
 
 func _on_day_complete() -> void:
 	print("[Shop] All customers served! Day %d complete." % GameManager.current_day)
@@ -143,17 +163,55 @@ func _on_day_complete() -> void:
 	_show_day_summary()
 
 func _show_day_summary() -> void:
-	# Show a brief day-end summary before next day starts
 	var summary = $UI/DaySummary
 	summary.visible = true
 	var prev_day = GameManager.current_day - 1
+	var served = customer_manager.customers_served_today
+
+	# --- Text content ---
 	summary.get_node("DayText").text = "Day %d Complete" % prev_day
-	summary.get_node("CoinsText").text = "%d coins  |  Level %d" % [GameManager.player_coins, GameManager.player_level]
+	summary.get_node("CoinsText").text = ""
+
+	# --- Animate panel slide in ---
+	var panel = summary.get_node("Panel")
+	var dimmer = summary.get_node("Dimmer")
+	dimmer.modulate.a = 0.0
+	panel.scale = Vector2(0.8, 0.8)
+	panel.pivot_offset = panel.size / 2
+	var show_tween = create_tween().set_parallel(true)
+	show_tween.tween_property(dimmer, "modulate:a", 1.0, 0.3)
+	show_tween.tween_property(panel, "scale", Vector2(1.0, 1.0), 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+	# --- Animated coin counter ---
+	var coins_label_node = summary.get_node("CoinsText")
+	show_tween.chain().tween_method(func(val: int):
+		coins_label_node.text = "+%d coins  |  %d total  |  Lv %d" % [val, GameManager.player_coins, GameManager.player_level]
+	, 0, coins_earned_today, 0.6)
+
+	# --- Star rating (1-3 stars based on served count) ---
+	var stars = 1
+	if served >= 4:
+		stars = 3
+	elif served >= 3:
+		stars = 2
+	if not summary.has_node("StarsLabel"):
+		var slbl = Label.new()
+		slbl.name = "StarsLabel"
+		slbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		slbl.add_theme_font_size_override("font_size", 44)
+		slbl.position = Vector2(110, 460)
+		slbl.size = Vector2(500, 50)
+		summary.add_child(slbl)
+	var star_text = ""
+	for i in stars:
+		star_text += "*"
+	summary.get_node("StarsLabel").text = star_text
+
+	# --- Buttons ---
 	summary.get_node("NextBtn").pressed.connect(func():
-		summary.visible = false
-		customer_manager.start_day()
+		_close_day_summary(summary)
 	, CONNECT_ONE_SHOT)
-	# Add shop upgrades button to summary if not already there
+
 	if not summary.has_node("UpgradeBtn"):
 		var ubtn = Button.new()
 		ubtn.name = "UpgradeBtn"
@@ -165,11 +223,24 @@ func _show_day_summary() -> void:
 		ubtn.pressed.connect(func():
 			summary.visible = false
 			upgrade_shop.open_panel()
-			# When upgrade shop closes, re-show summary
 			upgrade_shop.panel_closed.connect(func():
 				_show_day_summary()
 			, CONNECT_ONE_SHOT)
 		)
+
+func _close_day_summary(summary: Control) -> void:
+	var panel = summary.get_node("Panel")
+	var dimmer = summary.get_node("Dimmer")
+	var close_tween = create_tween().set_parallel(true)
+	close_tween.tween_property(dimmer, "modulate:a", 0.0, 0.25)
+	close_tween.tween_property(panel, "scale", Vector2(0.7, 0.7), 0.2).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+	close_tween.chain().tween_callback(func():
+		summary.visible = false
+		# Reset to morning and start new day
+		if day_night:
+			day_night.snap_to_morning()
+		customer_manager.start_day()
+	)
 
 func _setup_visuals() -> void:
 	# Add procedural shop background (draws behind everything)
@@ -206,6 +277,17 @@ func _setup_visuals() -> void:
 	pv.name = "PlayerArt"
 	pv.set_script(load("res://scripts/visual/player_visual.gd"))
 	player.add_child(pv)
+	# Day/night cycle (CanvasModulate tints entire scene)
+	day_night = CanvasModulate.new()
+	day_night.name = "DayNightCycle"
+	day_night.set_script(load("res://scripts/visual/day_night_cycle.gd"))
+	add_child(day_night)
+	# Tap feedback effects (draws on top of everything in game world)
+	tap_juice = Node2D.new()
+	tap_juice.name = "TapJuice"
+	tap_juice.z_index = 50
+	tap_juice.set_script(load("res://scripts/visual/tap_juice.gd"))
+	add_child(tap_juice)
 
 func _setup_collisions() -> void:
 	var player_shape = RectangleShape2D.new()

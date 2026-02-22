@@ -6,6 +6,7 @@ extends Node
 signal customer_waiting(customer_data: Dictionary)
 signal order_filled(reward: int)
 signal day_complete
+signal day_progress(progress: float)
 
 var customer_scene: PackedScene = preload("res://scenes/npcs/customer.tscn")
 var current_customer: CharacterBody2D = null
@@ -98,6 +99,7 @@ func init(shop: Node2D) -> void:
 
 func start_day() -> void:
 	customers_served_today = 0
+	day_progress.emit(0.0)
 	_spawn_next_customer()
 
 func _get_customers_for_today() -> int:
@@ -164,6 +166,8 @@ func _on_order_completed(_customer: CharacterBody2D, reward: int) -> void:
 func _on_customer_left(_customer: CharacterBody2D) -> void:
 	current_customer = null
 	customers_served_today += 1
+	var total = _get_customers_for_today()
+	day_progress.emit(float(customers_served_today) / float(total))
 	# Small delay before next customer (bell upgrade speeds it up)
 	var UpgradeShop = load("res://scripts/shop/upgrade_shop.gd")
 	var delay = 2.0 if not UpgradeShop.has_upgrade("bell") else 1.0
