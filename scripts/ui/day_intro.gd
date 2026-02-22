@@ -88,13 +88,17 @@ func show_day_intro(day: int) -> void:
 	# Hold for 2 seconds, then fade out
 	var hold_time = 2.5 if day == 1 else 1.8
 	tween.chain().tween_interval(hold_time)
-	tween.chain().tween_property(dimmer, "modulate:a", 0.0, 0.4).set_parallel(true)
-	tween.chain().tween_property(day_label, "modulate:a", 0.0, 0.3).set_parallel(true)
-	tween.chain().tween_property(subtitle, "modulate:a", 0.0, 0.3).set_parallel(true)
+	# Fade out — launch a parallel tween from a callback so all three fade together
 	tween.chain().tween_callback(func():
-		visible = false
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		intro_finished.emit()
+		var fade = create_tween().set_parallel(true)
+		fade.tween_property(dimmer, "modulate:a", 0.0, 0.4)
+		fade.tween_property(day_label, "modulate:a", 0.0, 0.3)
+		fade.tween_property(subtitle, "modulate:a", 0.0, 0.3)
+		fade.chain().tween_callback(func():
+			visible = false
+			mouse_filter = Control.MOUSE_FILTER_IGNORE
+			intro_finished.emit()
+		)
 	)
 
 ## --- Contextual hint system (Day 1 only) ---
