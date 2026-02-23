@@ -70,6 +70,9 @@ func _ready() -> void:
 	customer_manager.order_filled.connect(_on_order_filled)
 	customer_manager.day_complete.connect(_on_day_complete)
 	customer_manager.day_progress.connect(_on_day_progress)
+	customer_manager.vip_arrived.connect(_on_vip_arrived)
+	customer_manager.vip_succeeded.connect(_on_vip_succeeded)
+	customer_manager.vip_failed.connect(_on_vip_failed)
 	Analytics.track_event("scene_entered", {"scene": "shop"})
 	_restore_visual_upgrades()
 	# Hide static tap hint — replaced by contextual Day 1 hints
@@ -229,6 +232,26 @@ func _on_order_filled(reward: int) -> void:
 			"puzzles": GameManager.puzzles_completed,
 		})
 
+func _on_vip_arrived(_data: Dictionary) -> void:
+	if tap_juice:
+		tap_juice.spawn_floating_text(Vector2(360, 700), "VIP CUSTOMER!", Color(1.0, 0.85, 0.2))
+	if screen_shake:
+		screen_shake.shake(8.0, 4.0)
+	AudioManager.play("level_up")
+
+func _on_vip_succeeded(bonus: int) -> void:
+	if tap_juice:
+		tap_juice.spawn_floating_text(Vector2(360, 650), "VIP Impressed! x3 BOOST!", Color(1.0, 0.85, 0.2))
+		tap_juice.spawn_floating_text(Vector2(360, 700), "Next 3 customers pay TRIPLE", Color(1.0, 0.9, 0.4))
+	if screen_shake:
+		screen_shake.shake(15.0, 4.0)
+
+func _on_vip_failed() -> void:
+	if tap_juice:
+		tap_juice.spawn_floating_text(Vector2(360, 650), "VIP Left Disappointed...", Color(0.9, 0.4, 0.3))
+	if screen_shake:
+		screen_shake.shake(8.0, 8.0)
+
 func _on_stock_changed(_shelf_id: String, _level: int) -> void:
 	_update_hud()
 
@@ -297,6 +320,9 @@ func _show_day_summary() -> void:
 	summary.visible = true
 	var prev_day = GameManager.current_day - 1
 	var served = customer_manager.customers_served_today
+	var failed = customer_manager.customers_failed_today
+	var total_customers = served + failed
+	var best_streak = customer_manager.get_streak()
 
 	# --- Text content ---
 	summary.get_node("DayText").text = "Day %d Complete" % prev_day
@@ -318,9 +344,9 @@ func _show_day_summary() -> void:
 		coins_label_node.text = "+%d coins  |  %d total  |  Lv %d" % [val, GameManager.player_coins, GameManager.player_level]
 	, 0, coins_earned_today, 0.6)
 
-	# --- Star rating (1-3 stars based on served count) ---
+	# --- Star rating (1-3 stars based on performance) ---
 	var stars = 1
-	if served >= 4:
+	if failed == 0 and served >= 4:
 		stars = 3
 	elif served >= 3:
 		stars = 2
@@ -329,7 +355,7 @@ func _show_day_summary() -> void:
 		slbl.name = "StarsLabel"
 		slbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		slbl.add_theme_font_size_override("font_size", 44)
-		slbl.position = Vector2(110, 460)
+		slbl.position = Vector2(110, 370)
 		slbl.size = Vector2(500, 50)
 		summary.add_child(slbl)
 	var star_text = ""
@@ -337,21 +363,43 @@ func _show_day_summary() -> void:
 		star_text += "*"
 	summary.get_node("StarsLabel").text = star_text
 
+	# --- Detailed breakdown ---
+	if not summary.has_node("BreakdownLabel"):
+		var bd = Label.new()
+		bd.name = "BreakdownLabel"
+		bd.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		bd.add_theme_font_size_override("font_size", 20)
+		bd.position = Vector2(60, 410)
+		bd.size = Vector2(600, 100)
+		bd.autowrap_mode = TextServer.AUTOWRAP_WORD
+		bd.modulate = Color(0.9, 0.85, 0.75, 0.9)
+		summary.add_child(bd)
+
+	var bd_lines: Array[String] = []
+	bd_lines.append("Customers served: %d / %d" % [served, total_customers])
+	if failed > 0:
+		bd_lines.append("Lost patience: %d" % failed)
+	if best_streak >= 2:
+		bd_lines.append("Best streak: %d in a row" % best_streak)
+	bd_lines.append("Upgrades owned: %d" % GameManager.shop_upgrades.size())
+	bd_lines.append("Puzzles solved: %d total" % GameManager.puzzles_completed)
+	summary.get_node("BreakdownLabel").text = "\n".join(bd_lines)
+
 	# --- Best day + tomorrow preview ---
 	if not summary.has_node("ExtraInfo"):
 		var info = Label.new()
 		info.name = "ExtraInfo"
 		info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		info.add_theme_font_size_override("font_size", 20)
-		info.position = Vector2(60, 490)
+		info.position = Vector2(60, 510)
 		info.size = Vector2(600, 80)
 		info.autowrap_mode = TextServer.AUTOWRAP_WORD
 		info.modulate = Color(0.8, 0.75, 0.65, 0.85)
 		summary.add_child(info)
 	var extra_lines: Array[String] = []
 	if coins_earned_today >= GameManager.best_day_coins and coins_earned_today > 0:
-		extra_lines.append("New personal best!")
-	extra_lines.append("Best day: Day %d (%d coins)" % [GameManager.best_day_number, GameManager.best_day_coins])
+		extra_lines.append("NEW PERSONAL BEST!")
+	extra_lines.append("Record: Day %d (%d coins)" % [GameManager.best_day_number, GameManager.best_day_coins])
 	# Tomorrow preview tease
 	var next_day = GameManager.current_day
 	if next_day <= 3:
@@ -362,6 +410,9 @@ func _show_day_summary() -> void:
 		extra_lines.append("Tomorrow: Busy day ahead...")
 	else:
 		extra_lines.append("Tomorrow: The regulars expect quality!")
+	# VIP tease if not yet seen
+	if next_day >= 3 and not customer_manager._vip_attempted_today:
+		extra_lines.append("A VIP might visit tomorrow...")
 	summary.get_node("ExtraInfo").text = "\n".join(extra_lines)
 
 	# --- Buttons ---
@@ -374,7 +425,7 @@ func _show_day_summary() -> void:
 		ubtn.name = "UpgradeBtn"
 		ubtn.text = "Shop Upgrades"
 		ubtn.add_theme_font_size_override("font_size", 28)
-		ubtn.position = Vector2(220, 530)
+		ubtn.position = Vector2(220, 580)
 		ubtn.size = Vector2(280, 50)
 		summary.add_child(ubtn)
 		ubtn.pressed.connect(func():
@@ -611,4 +662,7 @@ func _update_hud() -> void:
 		if ratio < 1.0:
 			var pct = int(ratio * 100)
 			stock_text = "  |  Stock %d%%" % pct
-	coins_label.text = "%d coins%s" % [GameManager.player_coins, stock_text]
+	var boost_text := ""
+	if customer_manager.vip_coin_boost_remaining > 0:
+		boost_text = "  |  x3 BOOST (%d left)" % customer_manager.vip_coin_boost_remaining
+	coins_label.text = "%d coins%s%s" % [GameManager.player_coins, stock_text, boost_text]

@@ -57,6 +57,26 @@ var recipes: Dictionary = {
 		"ingredients": ["spirits", "spices"],
 		"color": Color(0.7, 0.45, 0.2),
 	},
+	"herbal_tea": {
+		"name": "Herbal Tea",
+		"ingredients": ["spices", "coffee"],
+		"color": Color(0.45, 0.6, 0.35),
+	},
+	"gift_basket": {
+		"name": "Gift Basket",
+		"ingredients": ["spices", "coffee", "wine"],
+		"color": Color(0.75, 0.55, 0.4),
+	},
+	"spice_blend": {
+		"name": "Spice Blend",
+		"ingredients": ["spices", "coffee", "leather"],
+		"color": Color(0.85, 0.5, 0.2),
+	},
+	"leather_care_kit": {
+		"name": "Leather Care Kit",
+		"ingredients": ["leather", "tools", "spices"],
+		"color": Color(0.55, 0.38, 0.22),
+	},
 }
 
 var ingredient_colors: Dictionary = {

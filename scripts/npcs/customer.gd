@@ -27,6 +27,7 @@ var greeting_text: String = ""
 var thanks_text: String = "Thanks!"
 var impatient_text: String = "Too slow..."
 var custom_patience: float = 0.0  # 0 = use default MAX_PATIENCE
+var is_vip: bool = false
 var state: String = "entering"  # entering, waiting, leaving, done
 var target_pos: Vector2 = Vector2.ZERO
 var counter_pos: Vector2 = Vector2(360, 1000)
@@ -48,6 +49,7 @@ func setup(data: Dictionary) -> void:
 	thanks_text = data.get("thanks", "Thanks!")
 	impatient_text = data.get("impatient", "Too slow...")
 	custom_patience = data.get("patience", 0.0)
+	is_vip = data.get("is_vip", false)
 
 func _ready() -> void:
 	# Hide old ColorRect placeholders
@@ -160,14 +162,34 @@ func fail_order() -> void:
 	)
 
 func _draw() -> void:
+	# --- VIP gold glow (behind everything) ---
+	if is_vip:
+		var vip_pulse = (sin(_patience_pulse * 3.0) + 1.0) / 2.0
+		var glow_alpha = 0.12 + vip_pulse * 0.08
+		draw_circle(Vector2(0, -10), 55, Color(1.0, 0.85, 0.2, glow_alpha))
+		draw_circle(Vector2(0, -10), 40, Color(1.0, 0.9, 0.3, glow_alpha * 0.7))
+
 	# --- Name plate background (always visible) ---
 	var np = Rect2(-55, -70, 110, 28)
 	# Shadow
 	draw_rect(Rect2(np.position.x + 2, np.position.y + 2, np.size.x, np.size.y), Color(0, 0, 0, 0.2))
-	# Background
-	DU.draw_rounded_panel(self, np, Color(0.12, 0.1, 0.15, 0.82), 5.0)
-	# Color accent dot
-	draw_circle(Vector2(-44, -56), 3.5, customer_color.lightened(0.15))
+	# Background — gold for VIP
+	var np_bg = Color(0.12, 0.1, 0.15, 0.82)
+	if is_vip:
+		np_bg = Color(0.35, 0.28, 0.08, 0.92)
+	DU.draw_rounded_panel(self, np, np_bg, 5.0)
+	# Color accent dot (star for VIP)
+	if is_vip:
+		# Small crown icon
+		var crown_y = -56.0
+		var crown_pts = PackedVector2Array([
+			Vector2(-48, crown_y + 4), Vector2(-46, crown_y - 2),
+			Vector2(-44, crown_y + 1), Vector2(-42, crown_y - 3),
+			Vector2(-40, crown_y + 4),
+		])
+		draw_polyline(crown_pts, Color(1.0, 0.85, 0.2), 2.0)
+	else:
+		draw_circle(Vector2(-44, -56), 3.5, customer_color.lightened(0.15))
 
 	# --- Speech bubble background (when text showing) ---
 	if speech_label.text != "":
